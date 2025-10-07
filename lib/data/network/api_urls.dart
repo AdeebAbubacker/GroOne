@@ -346,6 +346,7 @@ class ApiUrls {
       "$gpsBase/update_deprecated_notification_status";
   static String gpsUpdateNotificationToggle(int id) =>
       "$gpsBase/user_config/$id";
+  static String gpsPatchFcmToken(int userId) => "$gpsBase/user_config/$userId";
   static String get gpsGetUserId => "$gpsBase/tc_users";
   static final String gpsGetPlace = "$_mapBaseUrl/place";
 

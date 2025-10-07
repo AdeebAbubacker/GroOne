@@ -71,7 +71,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             }
 
             List<Widget> tiles = [];
-            void addTile(String? val, bool? enabled, var details) {
+            void addTile(dynamic val, bool? enabled, var details) {
               if ((enabled ?? true) && (val?.isNotEmpty ?? false)) {
                 tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? '', details?.fileExtension ?? ''));
               }
@@ -82,7 +82,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             addTile(docs.pan, docs.isPan, docs.panDocLinkDetails);
             addTile(docs.tdsDocLink, true, docs.tdsDocLinkDetails);
             addTile(docs.chequeDocLink, true, docs.chequeDocLinkDetails);
-            addTile(docs.aadhar, true, docs.aadharDocDetails);
+            addTile(docs.aadhar, true, docs.aadharDocLinkDetails);
 
             if (tiles.isEmpty) {
               return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));

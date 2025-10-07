@@ -1,10 +1,11 @@
 import 'dart:io';
+
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
-import '../models/gps_vehicle_models.dart';
-import '../models/gps_truck_length_model.dart';
 import '../models/gps_commodity_model.dart';
+import '../models/gps_truck_length_model.dart';
+import '../models/gps_vehicle_models.dart';
 
 /// GPS Document Upload Request
 class GpsDocumentUploadApiRequest {
@@ -447,55 +448,80 @@ class GpsKycCheckResponseModel {
 class GpsKycDocuments {
   final String? aadhar;
   final bool? isAadhar;
+  final String? aadharDocLink;
+  final String? aadharDocLinkDetails;
   final String? pan;
   final String? panDocLink;
+  final Map<String, dynamic>? panDocLinkDetails;
   final bool? isPan;
   final String? gstin;
   final String? gstinDocLink;
+  final String? gstinDocLinkDetails;
   final bool? isGstin;
   final String? tan;
   final String? tanDocLink;
+  final String? tanDocLinkDetails;
   final bool? isTan;
   final String? chequeDocLink;
-  final String? tdsDocLink;
+  final String? chequeDocLinkDetails;
+  final bool? isTds;
+  final List<dynamic>? tdsDocLink;
+  final List<dynamic>? tdsDocLinkDetails;
 
   const GpsKycDocuments({
     this.aadhar,
     this.isAadhar,
+    this.aadharDocLink,
+    this.aadharDocLinkDetails,
     this.pan,
     this.panDocLink,
+    this.panDocLinkDetails,
     this.isPan,
     this.gstin,
     this.gstinDocLink,
+    this.gstinDocLinkDetails,
     this.isGstin,
     this.tan,
     this.tanDocLink,
+    this.tanDocLinkDetails,
     this.isTan,
     this.chequeDocLink,
+    this.chequeDocLinkDetails,
+    this.isTds,
     this.tdsDocLink,
+    this.tdsDocLinkDetails,
   });
 
   factory GpsKycDocuments.fromJson(Map<String, dynamic> json) {
     return GpsKycDocuments(
       aadhar: json['aadhar'],
       isAadhar: json['isAadhar'],
+      aadharDocLink: json['aadhar_doc_link'],
+      aadharDocLinkDetails: json['aadharDocLinkDetails'],
       pan: json['pan'],
       panDocLink: json['panDocLink'],
+      panDocLinkDetails: json['panDocLinkDetails'],
       isPan: json['isPan'],
       gstin: json['gstin'],
       gstinDocLink: json['gstinDocLink'],
+      gstinDocLinkDetails: json['gstinDocLinkDetails'],
       isGstin: json['isGstin'],
       tan: json['tan'],
       tanDocLink: json['tanDocLink'],
+      tanDocLinkDetails: json['tanDocLinkDetails'],
       isTan: json['isTan'],
       chequeDocLink: json['chequeDocLink'],
-      tdsDocLink: json['tdsDocLink'],
+      chequeDocLinkDetails: json['chequeDocLinkDetails'],
+      isTds: json['isTds'],
+      tdsDocLink: json['tdsDocLink'] is List ? json['tdsDocLink'] : null,
+      tdsDocLinkDetails:
+          json['tdsDocLinkDetails'] is List ? json['tdsDocLinkDetails'] : null,
     );
   }
 
   @override
   String toString() {
-    return 'GpsKycDocuments{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, gstin: $gstin, gstinDocLink: $gstinDocLink, isGstin: $isGstin, tan: $tan, tanDocLink: $tanDocLink, isTan: $isTan, chequeDocLink: $chequeDocLink, tdsDocLink: $tdsDocLink}';
+    return 'GpsKycDocuments{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, aadharDocLinkDetails: $aadharDocLinkDetails, pan: $pan, panDocLink: $panDocLink, panDocLinkDetails: $panDocLinkDetails, isPan: $isPan, gstin: $gstin, gstinDocLink: $gstinDocLink, gstinDocLinkDetails: $gstinDocLinkDetails, isGstin: $isGstin, tan: $tan, tanDocLink: $tanDocLink, tanDocLinkDetails: $tanDocLinkDetails, isTan: $isTan, chequeDocLink: $chequeDocLink, chequeDocLinkDetails: $chequeDocLinkDetails, isTds: $isTds, tdsDocLink: $tdsDocLink, tdsDocLinkDetails: $tdsDocLinkDetails}';
   }
 }
 
@@ -1134,7 +1160,6 @@ class GpsOrderApiRequest {
 
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
-
     try {
       // Custom headers for the new vehicle verification API
       final customHeaders = {

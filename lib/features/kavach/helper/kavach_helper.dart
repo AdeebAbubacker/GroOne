@@ -20,8 +20,13 @@ class KavachHelper {
     }
   }
 
-  static String formatCurrency(dynamic totalPrice, {bool roundOf = false}) {
-    final formatter = NumberFormat("#,##,##0.00");
+  static String formatCurrency(
+    dynamic totalPrice, {
+    bool roundOf = false,
+    bool withoutDecimal = false,
+  }) {
+    final formatter =
+        withoutDecimal ? NumberFormat("#,##,##0") : NumberFormat("#,##,##0.00");
     final num value =
         totalPrice is num
             ? totalPrice

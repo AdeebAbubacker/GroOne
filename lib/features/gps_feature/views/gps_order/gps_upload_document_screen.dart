@@ -8,7 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
+import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -51,7 +54,11 @@ class GpsUploadDocumentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
+      create:
+          (_) => GpsUploadDocumentCubit(
+            locator<GpsOrderApiRepository>(),
+            locator<LoadDetailsRepository>(),
+          ),
       child: _GpsUploadDocumentContent(fromKavachScreen),
     );
   }
@@ -70,6 +77,8 @@ class _GpsUploadDocumentContent extends StatefulWidget {
 class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   final aadharNoController = TextEditingController();
   String? aadharRequestId;
+  final List<dynamic> ticketList = [];
+  final documentCubit = locator<DocumentTypeCubit>();
 
   final kycBloc = locator<KycCubit>();
   final profileCubit = locator<ProfileCubit>();
@@ -120,11 +129,24 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         final pdfPath = await KycHelper.saveBase64PdfToFile(
           aadharVerificationData?.dataPdf ?? "",
         );
-        await cubit.uploadAadhaarPdfFile(File(pdfPath));
-
-        cubit.setAadhaar(aadharNoController.text);
-        cubit.validateAadhaar(aadharNoController.text);
-        cubit.markAadhaarVerified();
+        final fileType = AADHAAR_CARD;
+        int documentId = 99;
+        final uploadResponse = await cubit.uploadDocument(
+          File(pdfPath),
+          fileType,
+          KycHelper.getMeta(KycDocType.aadharCard).title,
+          documentId,
+        );
+        if (uploadResponse?.url != null) {
+          cubit.setAadhaar(aadharNoController.text);
+          cubit.validateAadhaar(aadharNoController.text);
+          cubit.markAadhaarVerified();
+        } else {
+          if (!context.mounted) return;
+          ToastMessages.error(
+            message: context.appText.failedToUploadAadhaarPdf,
+          );
+        }
       }
     }
 
@@ -290,7 +312,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         cubit.updatePanDocuments(panDocList);
 
                         // Call the upload API
-                        cubit.uploadKycDocuments();
+                        cubit.uploadKycDocuments(documentCubit);
                       } else {
                         ToastMessages.alert(
                           message: context.appText.pleaseFillAllRequiredFields,
