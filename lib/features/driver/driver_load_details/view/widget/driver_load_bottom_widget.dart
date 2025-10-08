@@ -403,11 +403,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                           children: [
                                             20.height,
                                             _buildAdableSectionHeader(
-                                              showAddButton:
-                                                  state.loadStatus !=
-                                                      LoadStatus.completed &&
-                                                  state.loadStatus !=
-                                                      LoadStatus.podDispatched,
+                                              showAddButton:state.loadStatus != LoadStatus.completed && loadDetails
+                                            ?.data?.loadApproval
+                                            ?.damageAndShortagesApproved ==
+                                        null,
                                               context: context,
                                               title:
                                                   context.appText.damageAndShortage,
@@ -451,8 +450,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                           ),
                                                           child: Text(
                                                             loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
-                                                                ? "Approved"
-                                                                : "Rejected",
+                                                                ? context.appText.approved
+                                                                : context.appText.rejected,
                                                             style: AppTextStyle.h3RedLight14.copyWith( 
                                                                 color: loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
                                                                   ? AppColors.greenColor
@@ -488,12 +487,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             20.height,
                                             _buildAdableSectionHeader(
                                               context: context,
-                                              showAddButton:
-                                                  state.loadStatus !=
-                                                      LoadStatus.completed
-                                                      &&
-                                                  loads.data?.loadSettlement ==
-                                                      null,
+                                               showAddButton:  state.loadStatus != LoadStatus.completed && loadDetails
+                                          ?.data?.loadApproval
+                                          ?.settlementApproved ==
+                                          null ,
                                               title: context.appText.settlements,
                                               onAdd: () {
                                                 context.push(
@@ -509,6 +506,57 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                 });
                                               },
                                             ),
+                                              Visibility(
+                                visible:
+                                    loadDetails
+                                        ?.data?.loadApproval
+                                        ?.settlementApproved !=
+                                    null,
+                                child: Visibility(
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 20,top: 10),
+                                    padding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ).copyWith(),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          loadDetails
+                                                      ?.data?.loadApproval
+                                                      ?.settlementApproved ==
+                                                  true
+                                              ? AppColors.greenColor.withValues(
+                                                alpha: 0.2,
+                                              )
+                                              : AppColors.red.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      loadDetails
+                                                  ?.data?.loadApproval
+                                                  ?.settlementApproved ==
+                                              true
+                                          ? context.appText.approved
+                                          : context.appText.rejected,
+                                      style: AppTextStyle.h3RedLight14.copyWith(
+                                        color:
+                                            loadDetails
+                                                        ?.data?.loadApproval
+                                                        ?.settlementApproved ==
+                                                    true
+                                                ? AppColors.greenColor
+                                                : AppColors.red,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            
                                             _submittedSettlementInfoWidget(
                                               loadDetails?.data?.loadSettlement,
                                               context,
