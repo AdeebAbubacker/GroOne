@@ -127,7 +127,7 @@ String getSwipeButtonTitle(
 }
 
 Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
-  print("starting downloading");
+
 
   try {
     final directory = Platform.isAndroid
@@ -141,7 +141,7 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
       final lastSegment = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "downloaded_file.pdf";
 
 
-      print("lastSegment is ${lastSegment}");
+
 
       fileName = lastSegment.contains(".") ? lastSegment : "$lastSegment.pdf";
     }
@@ -151,7 +151,7 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
     final dio = Dio();
     await dio.download(url, filePath);
 
-    debugPrint("Saved file path: $filePath");
+
     if(filePath.split(".").last=="pdf"){
       final result = await OpenFilex.open(filePath, type: "application/pdf",);
     }else{

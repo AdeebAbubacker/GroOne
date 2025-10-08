@@ -557,7 +557,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     required List tdsDocLink,
   }) {
 
-    print("company id $companyId : user role $userRole");
+
 
 
     bool need(String msg, bool ok) {
@@ -885,7 +885,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               CustomLog.debug(this, "User Role: $userRole and company id $companyId");
 
                               List<Widget> children = [];
-                              print("isLP $isLP");
+
 
                               if (companyId == 1) {
                                 children.addAll([

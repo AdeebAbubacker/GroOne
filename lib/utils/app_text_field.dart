@@ -137,7 +137,7 @@ class AppTextField extends StatelessWidget {
                   );
                 } catch (e) {
                   if (kDebugMode) {
-                    print(e);
+
                   }
                 }
               },
