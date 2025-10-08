@@ -2528,10 +2528,15 @@ class DriverLoadApproval {
             loadId: json["loadId"] ?? "",
             rejectionReason: json["rejectionReason"],
             documentApproved: json["documentApproved"] ?? false,
+            // damageAndShortagesApproved: (json["damageAndShortagesApproved"] == null ||
+            //                 (json["damageAndShortagesApproved"] is Map && json["damageAndShortagesApproved"].isEmpty))
+            //         ? ""
+            //         : json["damageAndShortagesApproved"],
             damageAndShortagesApproved: (json["damageAndShortagesApproved"] == null ||
-                            (json["damageAndShortagesApproved"] is Map && json["damageAndShortagesApproved"].isEmpty))
-                    ? ""
-                    : json["damageAndShortagesApproved"],
+          (json["damageAndShortagesApproved"] is Map &&
+              json["damageAndShortagesApproved"].isEmpty))
+          ? null
+          : json["damageAndShortagesApproved"],
 
             damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
             settlementApproved: json["settlementApproved"],
