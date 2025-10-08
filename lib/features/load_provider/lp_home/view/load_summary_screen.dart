@@ -226,10 +226,10 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                       initialDate: pickupDate,
                     );
 
-                    if(!context.mounted) return;
+                    if(!context.mounted || date == null) return;
                     final String? time = await commonTimePicker(context);
 
-                    if (date != null && time != null) {
+                    if (time != null) {
                       dateAndTime = "$date - $time";
                       sendDateAndTimeInApi =  DateTimeHelper.convertToApiDateTime(date, time);
                       debugPrint(sendDateAndTimeInApi);

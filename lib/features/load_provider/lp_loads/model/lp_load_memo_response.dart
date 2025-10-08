@@ -15,6 +15,7 @@ class LpLoadMemoResponse {
     required this.balancePercentage,
     required this.bankDetails,
     required this.truckSupplier,
+    required this.disclaimer,
   });
 
   final String loadId;
@@ -32,6 +33,7 @@ class LpLoadMemoResponse {
   final String? virtualAccountId;
   final BankDetails? bankDetails;
   final TruckSupplier? truckSupplier;
+  final List? disclaimer;
 
   LpLoadMemoResponse copyWith({
     String? loadId,
@@ -49,6 +51,7 @@ class LpLoadMemoResponse {
     String? virtualAccountId,
     BankDetails? bankDetails,
     TruckSupplier? truckSupplier,
+    List? disclaimer,
   }) {
     return LpLoadMemoResponse(
       loadId: loadId ?? this.loadId,
@@ -66,6 +69,7 @@ class LpLoadMemoResponse {
       bankDetails: bankDetails ?? this.bankDetails,
       truckSupplier: truckSupplier ?? this.truckSupplier,
       virtualAccountId: virtualAccountId ?? this.virtualAccountId,
+      disclaimer: disclaimer ?? this.disclaimer,
     );
   }
 
@@ -86,6 +90,7 @@ class LpLoadMemoResponse {
       virtualAccountId: json["virtualAccountId"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
+      disclaimer: json["disclaimer"]  ?? [] ,
     );
   }
 

@@ -1391,6 +1391,6 @@
   "primaryAddressCannotBeDeleted": "Primary address cannot be deleted",
   "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5",
   "feedbackValidation":"Please enter feedback or a remark before submitting.",
-  "truckIsRequired" : "Truck is required"
-
+  "truckIsRequired" : "Truck is required",
+  "loadingMemo": "Loading Memo"
 }

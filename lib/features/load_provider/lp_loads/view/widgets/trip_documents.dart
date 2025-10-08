@@ -91,7 +91,7 @@ class TripDocuments extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      docName.capitalizeFirst,
+                      docName.capitalize,
                       style: AppTextStyle.body.copyWith(
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
