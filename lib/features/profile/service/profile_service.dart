@@ -241,7 +241,8 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } catch (e,stacktress) {
+    print("error is ${e.toString()} $stacktress");
       return Error(DeserializationError());
     }
   }

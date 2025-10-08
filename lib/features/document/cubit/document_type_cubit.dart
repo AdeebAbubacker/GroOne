@@ -37,6 +37,7 @@ class DocumentTypeCubit extends BaseCubit<DocumentTypeState> {
   Future<int> getDocumentTypeId(String name) async {
     List<DocumentTypeLst> documentTypeList =
         state.documentTypeState?.data?.documentTypeList ?? [];
+
     try {
       if (documentTypeList.isNotEmpty) {
         return documentTypeList

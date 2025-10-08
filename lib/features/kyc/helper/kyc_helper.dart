@@ -138,4 +138,17 @@ class KycHelper {
         ); // "Cancelled Cheque"
     }
   }
+  static String formatAadharNumber(String aadhar){
+    String digitsOnly = aadhar.replaceAll(RegExp(r'\D'), '');
+
+    // Add the formatting for Aadhaar number
+    String formattedText = '';
+    for (int i = 0; i < digitsOnly.length; i++) {
+      formattedText += digitsOnly[i];
+      if ((i + 1) % 4 == 0 && (i + 1) != digitsOnly.length) {
+        formattedText += ' ';
+      }
+    }
+    return formattedText;
+  }
 }

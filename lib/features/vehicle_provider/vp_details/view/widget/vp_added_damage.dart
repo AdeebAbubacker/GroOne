@@ -18,7 +18,7 @@ class VpAddedDamageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("imageList is ${imageList?.length} ${damageReport?.length}");
+
     return Column(
       children: List.generate(
         damageReport?.length ?? 0,

@@ -116,10 +116,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   String? selectedStateData;
   dynamic companyId;
   dynamic kycUserInfo;
+
+
   String? selectedCityID;
 
   @override
   void initState() {
+    setAadharNumber();
     initFunction();
     super.initState();
   }
@@ -131,6 +134,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+
     getKycDetailsFromLocal();
     getKycVerified();
     getAllDocs();
@@ -140,13 +144,32 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
     await endhancubit.fetchStates();
+    autoPopulatePan();
+    uploadAadharDocument();
+  });
+
+  void setAadharNumber(){
     if (widget.aadhaarNumber != null) {
       aadhaarNumberTextController.text = widget.aadhaarNumber!;
     } else {
       aadhaarNumberTextController.text = "";
     }
-    uploadAadharDocument();
-  });
+
+    _getFromLocal();
+  }
+
+
+  Future<void> _getFromLocal() async {
+    String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+
+    if((aadhaarNumber??"").isNotEmpty && (aadhaarNumberTextController.text).isEmpty){
+      aadhaarNumberTextController.text=aadhaarNumber??"";
+    }
+  }
+
+
+
+
 
   void getKycDetailsFromLocal() => frameCallback(() async {
     gstInTextController.text =
@@ -189,6 +212,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     securePrefs.saveKey(AppString.sessionKey.tanDocUrl, url);
     securePrefs.saveKey(AppString.sessionKey.tanDocID, docID);
   });
+
+  // auto populate aadhar
+  void autoPopulatePan(){
+    if((profileCubit.state.documentState?.data?.documents?.pan ?? "").isNotEmpty){
+      panTextController.text=profileCubit.state.documentState?.data?.documents?.pan ?? "";
+    }
+  }
 
   // get all from local
   Future getAllDocs() async {
@@ -526,16 +556,22 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     required List checkDocLink,
     required List tdsDocLink,
   }) {
+
+
+
+
     bool need(String msg, bool ok) {
+
       if (!ok) {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
-
       return ok;
     }
 
     bool checkId(String? id, String label) {
+
       final ok = id != null;
+
       if (!ok) {
         ToastMessages.alert(message: context.appText.errorMessage);
       }
@@ -543,7 +579,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool gstValid() {
-      if(companyId==1){
+
+      if(companyId==2){
         return true;
       }
 
@@ -569,15 +606,15 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool tanValid() {
-      /*    final uploaded = tanDoc.isNotEmpty;
+          final uploaded = tanDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedTan ?? false;
       return need(context.appText.tanDocument, uploaded) &&
           checkId(tanDocId, "TAN") &
           need(
             '${context.appText.tanDocument} ${context.appText.notVerified}',
             verified,
-          );*/
-      return true;
+          );
+
     }
 
     // VP FLOW
@@ -586,39 +623,59 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final chkOk =
             need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
             checkId(cancelledChequeDocId, "Cancelled Cheque");
-        return need(context.appText.aadhaar, true) && chkOk;
+        final panOk=panValid();
+        bool isValidTan=true;
+        if(userRole==3){
+          isValidTan= tanValid();
+        }
+        return need(context.appText.aadhaar, true) && chkOk && panOk && isValidTan;
       }
 
-      final gstOk = gstValid();
-      final panOk = panValid();
+
+
+      final gstOk = userRole==2 ? true:  gstValid();
+
+      final panOk =  panValid();
+
 
       final chkOk =
           need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
           checkId(cancelledChequeDocId, "Cancelled Cheque");
-      final tdsOk =
+    /*  final tdsOk =
           need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) &&
-          checkId(tdsDocId, "TDS");
+          checkId(tdsDocId, "TDS");*/
 
-      return gstOk && panOk && chkOk && tdsOk;
+
+       bool isValidTan=true;
+       if(userRole==3){
+         isValidTan= tanValid();
+       }
+
+      return userRole==3 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
+
     }
 
     // LP FLOW
     if (companyId == 2) {
-      return true; // Only Aadhaar needed
+      final panOk = panValid();
+      final tan=   tanValid();
+
+      return panOk && tan ; // Only Aadhaar needed
     }
 
     if (companyId == 1) {
       final gstOk = gstValid();
       final panOk = panValid();
-      final tanOk = tanValid();
+      final tanOk =tanValid();
       return gstOk && panOk && tanOk;
     }
 
-    final gstOk = gstValid();
+   final gstOk = gstValid();
     final panOk = panValid();
     final tanOk = tanValid();
     return gstOk && panOk && tanOk;
   }
+
 
   // bool validateDocs({
   //   required int userRole, // "2" for VP, anything else for LP
@@ -669,7 +726,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
-
     if (_formKey.currentState!.validate()) {
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
@@ -680,7 +736,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         checkDocLink: checkDocLink,
         tdsDocLink: tdsDocLink,
       );
+
+
       if (!ok) return;
+
 
       /// TODO:
       /// check if state is selected
@@ -706,7 +765,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         bankName: bankNameTextController.text.trim(),
         branchName: branchNameTextController.text.trim(),
         chequeDocLink: cancelledChequeDocId ?? "",
-        tdsDocLink: tdsDocId ?? "",
+        tdsDocLink: (tdsDocId??"").isNotEmpty ?  [tdsDocId ?? ""]:[],
         gstin: gstInTextController.text,
         gstinDocLink: gstDocId ?? "",
         ifscCode: ifscCodeTextController.text,
@@ -775,7 +834,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // Build Body
-  Widget  _buildBodyWidget() {
+  Widget _buildBodyWidget() {
     return SafeArea(
       bottom: false,
       child: SingleChildScrollView(
@@ -809,6 +868,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 final userRole = kycCubit.userRole;
                 final isVP = userRole == 2 || userRole == 3 || userRole == 4;
                 final isLP = userRole == 1 || userRole == 3;
+
                 return Column(
                   children: [
                     Form(
@@ -822,24 +882,28 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 return SizedBox();
                               }
 
-                              CustomLog.debug(this, "User Role: $userRole");
+                              CustomLog.debug(this, "User Role: $userRole and company id $companyId");
 
                               List<Widget> children = [];
+
 
                               if (companyId == 1) {
                                 children.addAll([
                                   _buildAadhaarWidget(context),
                                   25.height,
-                                  _buildGstWidget(),
+                                  _buildGstWidget(userRole),
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
+
                                   if (isVP) ...[
                                     buildCancelledCheckWidget(),
                                     25.height,
                                     buildTDSCertificationWidget(),
                                   ],
-                                  if (isLP) ...[25.height, _buildTanWidget()],
+                                  if (isLP) ...[25.height, _buildTanWidget(
+                                    isRequired: true
+                                  )],
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
@@ -847,18 +911,29 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   25.height,
                                   _buildAadhaarWidget(context),
                                   25.height,
+                                  _buildPanWidget(),
+
                                   if (isVP) ...[
+                                    25.height,
                                     buildCancelledCheckWidget(),
-                                    50.height,
+                                    if(!isLP)   25.height,
+
                                   ],
+                                  if (isLP) ...[25.height, _buildTanWidget(
+                                      isRequired: true
+                                  ),
+                                    25.height],
+
                                 ]);
                               } else {
                                 children.addAll([
-                                  _buildGstWidget(),
+                                  _buildGstWidget(userRole),
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
-                                  if (isLP) ...[_buildTanWidget(), 25.height],
+                                  if (isLP) ...[_buildTanWidget(
+                                    isRequired: ( userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2 )
+                                  ), 25.height],
                                   if (isVP) ...[
                                     buildTDSCertificationWidget(),
                                     25.height,
@@ -922,64 +997,85 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                         selectedStateId: selectedState,
                                         onStateChanged: (value) {
                                           setState(() {
-                                            selectedStateData = value?.name.toString();
-                                            selectedState = value?.name.toString();
+                                            selectedStateData =
+                                                value?.name.toString();
+                                            selectedState =
+                                                value?.name.toString();
                                             selectedCity = null;
                                           });
-                                          field.didChange(value?.name.isNotEmpty == true ? value?.name : null);
+                                          field.didChange(
+                                            value?.name.isNotEmpty == true
+                                                ? value?.name
+                                                : null,
+                                          );
                                         },
                                       ),
                                       if (field.hasError)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4, left: 8),
-                                        child: Text(
-                                          field.errorText!,
-                                          style: AppTextStyle.textFieldHintRedColor,
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 4,
+                                            left: 8,
+                                          ),
+                                          child: Text(
+                                            field.errorText!,
+                                            style:
+                                                AppTextStyle
+                                                    .textFieldHintRedColor,
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   );
-                                }
+                                },
                               ),
                               16.height,
                               FormField<String>(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                return context.appText.cityisRequired;
-                                }
-                                return null;
-                               },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return context.appText.cityisRequired;
+                                  }
+                                  return null;
+                                },
                                 builder: (field) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       CityDropdown(
                                         selectedState: selectedStateData,
                                         selectedCityId: selectedCityID,
                                         isStateSelected:
-                                        selectedState != null &&
                                             selectedState != null &&
                                             selectedState!.isNotEmpty,
                                         onCityChanged: (value) {
                                           setState(() {
-                                            selectedCity = value?.city.toString();
-                                            selectedCityID=value?.id.toString();
+                                            selectedCity =
+                                                value?.city.toString();
+                                            selectedCityID =
+                                                value?.id.toString();
                                           });
-                                          field.didChange(value?.city.isNotEmpty == true ? value?.city : null);
-
+                                          field.didChange(
+                                            value?.city.isNotEmpty == true
+                                                ? value?.city
+                                                : null,
+                                          );
                                         },
                                       ),
-                                       if (field.hasError)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4, left: 8),
-                                        child: Text(
-                                          field.errorText!,
-                                          style: AppTextStyle.textFieldHintRedColor,
+                                      if (field.hasError)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 4,
+                                            left: 8,
+                                          ),
+                                          child: Text(
+                                            field.errorText!,
+                                            style:
+                                                AppTextStyle
+                                                    .textFieldHintRedColor,
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   );
-                                }
+                                },
                               ),
                               16.height,
                               AppTextField(
@@ -1131,18 +1227,18 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // GST Text Field & Upload GST
-  Widget _buildGstWidget() {
+  Widget _buildGstWidget(int userRole) {
+
     return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
       builder: (context, state) {
         bool verified = state.verifiedGst != null && state.verifiedGst!;
-
         return Column(
           children: [
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: companyId!=1,
+              isMandatory: (userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2) || (userRole==3 &&companyId==1)  ,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1257,7 +1353,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // TAN Text Field & Upload TAN
-  Widget _buildTanWidget() {
+  Widget _buildTanWidget({bool isRequired=false}) {
     return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
       builder: (context, state) {
@@ -1267,6 +1363,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter TAN number
             buildTextFieldWithLabelWidget(
               maxLength: 10,
+
               onChanged: (text) {
                 setTanIntoLocal(text ?? "");
               },
@@ -1277,7 +1374,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       : context.appText.unVerified,
               readOnly: verified,
               rightText: "TAN",
-              isMandatory: false,
+              isMandatory: isRequired,
+
               controller: tanTextController,
               suffixOnTap: () async {
                 if (tanTextController.text.isEmpty) {
@@ -1384,7 +1482,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
-
               onChanged: (text) {
                 setPanIntoLocal(text ?? "");
               },
@@ -1398,6 +1495,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       ? context.appText.verified
                       : context.appText.unVerified,
               readOnly: verified,
+
               rightText: "PAN",
               controller: panTextController,
               suffixOnTap: () async {
@@ -1504,9 +1602,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
         if (kycCubit.userRole != null && kycCubit.userRole != 1) {
           return UploadAttachmentFiles(
-            title: "${context.appText.cancelledCheque} *",
+            title: "${context.appText.cancelledCheque} ",
             multiFilesList: checkDocLink,
             isSingleFile: true,
+            isMandatory: true,
             isLoading: cancelledCheckUploadState == Status.LOADING,
             allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
             thenUploadFileToSever: () async {
@@ -1581,8 +1680,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final tdsUploadState = state.uploadTDSDocUIState?.status;
         if (kycCubit.userRole != null && kycCubit.userRole != 1) {
           return UploadAttachmentFiles(
-            title: "${context.appText.tdsCertificate} *",
+            title: context.appText.tdsCertificate,
             multiFilesList: tdsDocLink,
+
             isSingleFile: true,
             isLoading: tdsUploadState == Status.LOADING,
             allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
@@ -1726,7 +1826,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool? isMandatory,
     Function(String? text)? onChanged,
   }) {
-
     return Column(
       children: [
         Row(
@@ -1758,7 +1857,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ),
         6.height,
         AppTextField(
-
           maxLength: maxLength,
           validator:
               (value) =>

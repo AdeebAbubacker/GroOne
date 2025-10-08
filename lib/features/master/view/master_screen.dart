@@ -86,6 +86,8 @@ class _MasterScreenState extends State<MasterScreen>
 
 
   @override
+
+
   void initState() {
 
     super.initState();
@@ -233,7 +235,7 @@ class _MasterScreenState extends State<MasterScreen>
     return Container(
       height: 30,
       constraints: const BoxConstraints(
-      minWidth: 120, 
+      minWidth: 120,
     ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -345,7 +347,7 @@ Widget buildReadOnlyField(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: commonContainerDecoration(
-          color:   (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
+          color:   (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
           borderRadius: BorderRadius.circular(commonTexFieldRadius),
           borderColor: AppColors.borderColor,
         ),

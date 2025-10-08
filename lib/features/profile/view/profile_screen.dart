@@ -256,6 +256,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               context.push(AppRouteName.master);
             },
           ),
+
           commonDivider(),
           if (kycCubit.userRole == 1 || kycCubit.userRole == 3) ...[
             ProfileMyAccountTile(

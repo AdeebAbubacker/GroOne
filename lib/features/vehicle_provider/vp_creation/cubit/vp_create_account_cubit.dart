@@ -78,51 +78,74 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
         prefLaneUIState: uiState));
   }
 
-  Future<void> fetchPrefLane(String? location,{bool isInit=false,List<LaneDetailsResponse>? selectedLanes}) async {
-
-    if(isInit){
+  Future<void> fetchPrefLane(
+      String? location, {
+        bool isInit = false,
+        List<LaneDetailsResponse>? selectedLanes,
+      }) async {
+    if (isInit) {
       emit(state.copyWith(currentPage: 1, prefLaneUIState: UIState.loading()));
     }
+
     final existingModel = state.prefLaneUIState?.data;
 
+    // pagination stop condition
     if (!isInit && existingModel != null) {
       final total = existingModel.data?.total ?? 0;
       final limit = existingModel.data?.limit ?? 0;
       List lanesItems = existingModel.data?.items ?? [];
       final currentPage = state.currentPage ?? 1;
-      if (total <= (currentPage - 1) * limit &&  lanesItems.length>=total) {
+      if (total <= (currentPage - 1) * limit && lanesItems.length >= total) {
         return; // stop calling API
       }
     }
 
-    Result result = await _repository.getPrefTruckLaneData(location,page: state.currentPage??1);
+    Result result = await _repository.getPrefTruckLaneData(
+      location,
+      page: state.currentPage ?? 1,
+    );
+
     if (result is Success<TruckPrefLaneModel>) {
-      List<Item> newLens=result.value.data?.items??[];
-      List<Item> oldLanes=state.prefLaneUIState?.data?.data?.items??[];
-      TruckPrefLaneModel lanesModel=result.value;
-      TruckPrefLaneModel newLanesModel=lanesModel.copyWith(
-        data: lanesModel.data?.copyWith(
-          items: [
-            ...oldLanes,
-            ...newLens
+      List<Item> newLens = result.value.data?.items ?? [];
 
-          ]
-        )
+      List<Item> oldLanes = [];
+      if (!isInit) {
+        oldLanes = state.prefLaneUIState?.data?.data?.items ?? [];
+      }
+
+
+      final mergedItems = [...oldLanes, ...newLens];
+
+
+      final uniqueItems = mergedItems.fold<Map<String, Item>>({}, (map, item) {
+        map[item.masterLaneId?.toString() ?? ""] = item; // id null ho to empty string use hoga
+        return map;
+      }).values.toList();
+
+      TruckPrefLaneModel lanesModel = result.value;
+      TruckPrefLaneModel newLanesModel = lanesModel.copyWith(
+        data: lanesModel.data?.copyWith(items: uniqueItems),
       );
-      newLanesModel= lanesModel.copyWith(
-          data: lanesModel.data?.copyWith(
-              items:  selectedDefaultLanes(newLanesModel.data?.items??[],state.selectedPreferLanes??[])
-          )
+
+      newLanesModel = newLanesModel.copyWith(
+        data: newLanesModel.data?.copyWith(
+          items: selectedDefaultLanes(
+            newLanesModel.data?.items ?? [],
+            state.selectedPreferLanes ?? [],
+          ),
+        ),
       );
 
-      _setPrefLaneUIState(UIState.success(newLanesModel), currentPage: (state.currentPage??0)+1);
-
+      _setPrefLaneUIState(
+        UIState.success(newLanesModel),
+        currentPage: (state.currentPage ?? 0) + 1,
+      );
     }
+
     if (result is Error) {
       _setPrefLaneUIState(UIState.error(result.type));
     }
   }
-
 
 
   List<Item> selectedDefaultLanes(List<Item> preferLanes, List<Item> selectedPreferLanes) {

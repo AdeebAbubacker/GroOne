@@ -330,9 +330,7 @@ void _updateTabs(List<LoadStatusResponse> newTabs) {
           });
         } catch (e) {
           if (kDebugMode) {
-            print(
-              '❌ DEBUG: No route found with ID: ${widget.filterData?.routeId}',
-            );
+
           }
         }
       }
