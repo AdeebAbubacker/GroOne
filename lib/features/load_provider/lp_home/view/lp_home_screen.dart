@@ -929,11 +929,11 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                     initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateTimeTextController.text),
                   );
 
-                  if(!context.mounted) return;
+                  if(!context.mounted || date == null) return;
                    String? time = await commonTimePicker(context);
 
 
-                  if (date != null && time != null) {
+                  if (time != null) {
                     dateTimeTextController.text = date;
                     selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;
