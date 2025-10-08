@@ -37,28 +37,30 @@ import 'package:gro_one_app/utils/textFieldInputFormatter/aadhaar_input_formatte
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-
-
 class EnterAadhaarNumberBottomSheet extends StatefulWidget {
   const EnterAadhaarNumberBottomSheet({super.key});
 
   @override
-  State<EnterAadhaarNumberBottomSheet> createState() => _EnterAadhaarNumberBottomSheetState();
+  State<EnterAadhaarNumberBottomSheet> createState() =>
+      _EnterAadhaarNumberBottomSheetState();
 }
 
-class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBottomSheet> {
-
+class _EnterAadhaarNumberBottomSheetState
+    extends BaseState<EnterAadhaarNumberBottomSheet> {
   final formKey = GlobalKey<FormState>();
 
   final kycBloc = locator<KycCubit>();
   final profileCubit = locator<ProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
-  final TextEditingController aadhaarNumberTextController = TextEditingController();
-  final TextEditingController aadhaarNumberOtpTextController = TextEditingController();
+  final TextEditingController aadhaarNumberTextController =
+      TextEditingController();
+  final TextEditingController aadhaarNumberOtpTextController =
+      TextEditingController();
 
   String? requestID;
   String? aadhaarValue;
+
   /// TEMP Remove this after backend work done
   String? aadhaarValueForDocID;
 
@@ -67,7 +69,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
   String? aadharRequestId;
 
-  final _storage= locator<SecuredSharedPreferences>();
+  final _storage = locator<SecuredSharedPreferences>();
 
   @override
   void initState() {
@@ -88,26 +90,32 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
     kycBloc.resetState();
   });
 
-
-  void autoPopulateAadhar(){
-    if(profileCubit.state.documentState?.data!=null && (profileCubit.state.documentState?.data?.documents?.aadhar??"").isNotEmpty){
-      aadhaarNumberTextController.text=KycHelper.formatAadharNumber(profileCubit.state.documentState?.data?.documents?.aadhar??"");
-      final aadhaar =   aadhaarNumberTextController.text.replaceAll(' ', '');
+  void autoPopulateAadhar() {
+    if (profileCubit.state.documentState?.data != null &&
+        (profileCubit.state.documentState?.data?.documents?.aadhar ?? "")
+            .isNotEmpty) {
+      aadhaarNumberTextController.text = KycHelper.formatAadharNumber(
+        profileCubit.state.documentState?.data?.documents?.aadhar ?? "",
+      );
+      final aadhaar = aadhaarNumberTextController.text.replaceAll(' ', '');
       aadhaarValue = aadhaar;
-      aadhaarValueForDocID=  aadhaarNumberTextController.text;
+      aadhaarValueForDocID = aadhaarNumberTextController.text;
     }
   }
 
+  void setAadharDocumentToLocal(String? aadharPdf, String? aadharNumber) =>
+      frameCallback(() async {
+        await Future.wait([
+          if (aadhaarNumberTextController.text.isNotEmpty)
+            _storage.saveKey(
+              AppString.sessionKey.aadharNumber,
+              aadhaarNumberTextController.text,
+            ),
+          _storage.saveKey(AppString.sessionKey.aadharPdf, aadharPdf ?? ""),
 
-  void setAadharDocumentToLocal(String? aadharPdf,String? aadharNumber)=>frameCallback(() async{
-   await Future.wait(
-      [
-    _storage.saveBoolean(AppString.sessionKey.aadharVerified, true),
-    _storage.saveKey(AppString.sessionKey.aadharNumber, aadhaarNumberTextController.text),
-    _storage.saveKey(AppString.sessionKey.aadharPdf, aadharPdf??"")
-      ]);
-  });
-
+          _storage.saveBoolean(AppString.sessionKey.aadharVerified, true),
+        ]);
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -115,56 +123,71 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
       hideDivider: false,
       isCloseButton: false,
       body: _buildBodyWidget(),
-      title: context.appText.verifyYourKYC
+      title: context.appText.verifyYourKYC,
     );
   }
 
-   Future<void> _checkKycVerification(AadharVerificationData? aadharVerificationData,String? pdfData)async{
-    String? statusVerified=aadharVerificationData?.status;
-    if(statusVerified=="VERIFIED" || (pdfData??"").isNotEmpty){
-       String? path;
-       if((pdfData??"").isNotEmpty){
-         path = await KycHelper.saveBase64PdfToFile(pdfData??"");
-       }else{
-         path= await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf??"");
-       }
-       setAadharDocumentToLocal(path,aadhaarNumberTextController.text);
-       analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_SUCCESS);
+  Future<void> _checkKycVerification(
+    AadharVerificationData? aadharVerificationData,
+    String? pdfData,
+  ) async {
+    String? statusVerified = aadharVerificationData?.status;
+    if (statusVerified == "VERIFIED" || (pdfData ?? "").isNotEmpty) {
+      String? path;
+      if ((pdfData ?? "").isNotEmpty) {
+        path = await KycHelper.saveBase64PdfToFile(pdfData ?? "");
+      } else {
+        path = await KycHelper.saveBase64PdfToFile(
+          aadharVerificationData?.dataPdf ?? "",
+        );
+      }
+      setAadharDocumentToLocal(path, aadhaarNumberTextController.text);
 
-       Navigator.of(navigatorKey.currentState!.context).pushReplacement(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
-         if(v != null && v == true){
-           profileCubit.fetchProfileDetail();
-           aadhaarNumberTextController.clear();
-           aadhaarNumberOtpTextController.clear();
-         }
-       });
-       return;
-     }else{
+      analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_SUCCESS);
+
+      Navigator.of(navigatorKey.currentState!.context)
+          .pushReplacement(
+            commonRoute(
+              KycUploadDocumentScreen(
+                aadhaarNumber: aadhaarNumberTextController.text,
+                pdfPath: path,
+              ),
+            ),
+          )
+          .then((v) {
+            if (v != null && v == true) {
+              profileCubit.fetchProfileDetail();
+              aadhaarNumberTextController.clear();
+              aadhaarNumberOtpTextController.clear();
+            }
+          });
+      return;
+    } else {
       analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED);
     }
-   }
-
-
+  }
 
   Future<void> _checkVerification(KycInitResponse? kycInitResponse) async {
-    String? sdkUrl=kycInitResponse?.sdkUrl??"";
-    aadharRequestId??=kycInitResponse?.requestId??"";
-    String verifiedStatus=kycInitResponse?.status??"";
-    String pdfData=kycInitResponse?.dataPdf??"";
+    print("calling this check verification");
 
+    String? sdkUrl = kycInitResponse?.sdkUrl ?? "";
+    aadharRequestId ??= kycInitResponse?.requestId ?? "";
+    String verifiedStatus = kycInitResponse?.status ?? "";
+    String pdfData = kycInitResponse?.dataPdf ?? "";
 
-    if(verifiedStatus.isNotEmpty && verifiedStatus=="VERIFIED"){
-      _checkKycVerification(null,pdfData);
+    if (verifiedStatus.isNotEmpty && verifiedStatus == "VERIFIED") {
+      _checkKycVerification(null, pdfData);
       return;
     }
 
-    if(sdkUrl.isNotEmpty){
-      final isVerified= await Navigator.push(navigatorKey.currentState!.context, commonRoute(KycVerificationWebView(
-        url: sdkUrl,
-      )));
-      if(isVerified!=null && isVerified){
-       kycBloc.getKYCStatus(aadharRequestId??"");
-     }
+    if (sdkUrl.isNotEmpty) {
+      final isVerified = await Navigator.push(
+        navigatorKey.currentState!.context,
+        commonRoute(KycVerificationWebView(url: sdkUrl)),
+      );
+      if (isVerified != null && isVerified) {
+        kycBloc.getKYCStatus(aadharRequestId ?? "");
+      }
     }
   }
 
@@ -172,8 +195,13 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
   Widget _buildBodyWidget() {
     return BlocConsumer<KycCubit, KycState>(
       bloc: kycBloc,
-      listenWhen: (previous, current) => previous.kycInitResponse!=current.kycInitResponse || previous.aadharVerificationState!=current.aadharVerificationState || previous.docVerificationState !=current.docVerificationState ,
-      listener: (context, state)  {
+      listenWhen:
+          (previous, current) =>
+              previous.kycInitResponse != current.kycInitResponse ||
+              previous.aadharVerificationState !=
+                  current.aadharVerificationState ||
+              previous.docVerificationState != current.docVerificationState,
+      listener: (context, state) {
         final initState = state.kycInitResponse;
         if (initState?.status == Status.SUCCESS) {
           requestID = initState?.data?.requestId ?? '123456';
@@ -186,27 +214,34 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
         final aadharVerificationResponse = state.aadharVerificationState;
         final docVerificationState = state.docVerificationState;
-        if(aadharVerificationResponse?.status==Status.SUCCESS){
-          _checkKycVerification(aadharVerificationResponse?.data?.data,"");
+        if (aadharVerificationResponse?.status == Status.SUCCESS) {
+          _checkKycVerification(aadharVerificationResponse?.data?.data, "");
         }
-        if(docVerificationState?.status==Status.SUCCESS){
-          final request = KycInitRequest(aadharNumber:  aadhaarValue ?? "");
-           kycBloc.sendKycRequest(request);
-        }
-
-        if(docVerificationState?.status==Status.ERROR){
-          ToastMessages.error(message: getErrorMsg(errorType: docVerificationState?.errorType?? GenericError()));
+        if (docVerificationState?.status == Status.SUCCESS) {
+          final request = KycInitRequest(aadharNumber: aadhaarValue ?? "");
+          kycBloc.sendKycRequest(request);
         }
 
+        if (docVerificationState?.status == Status.ERROR) {
+          ToastMessages.error(
+            message: getErrorMsg(
+              errorType: docVerificationState?.errorType ?? GenericError(),
+            ),
+          );
+        }
       },
       builder: (context, state) {
         final kycInitState = state.kycInitResponse;
         final docVerificationState = state.docVerificationState;
-        final isLoading = kycInitState?.status == Status.LOADING || docVerificationState?.status==Status.LOADING;
+        final isLoading =
+            kycInitState?.status == Status.LOADING ||
+            docVerificationState?.status == Status.LOADING;
         return ValueListenableBuilder<bool>(
           valueListenable: showOtpFieldAadhaarNotifier,
           builder: (context, showOtp, _) {
-            return showOtp ? _buildAadhaarVerificationWidget(isLoading, context) : _buildAadhaarFormWidget(isLoading, context);
+            return showOtp
+                ? _buildAadhaarVerificationWidget(isLoading, context)
+                : _buildAadhaarFormWidget(isLoading, context);
           },
         );
       },
@@ -229,7 +264,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
             keyboardType: iosNumberKeyboard,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
-              AadhaarInputFormatter()
+              AadhaarInputFormatter(),
             ],
             labelText: context.appText.aadhaarLabel,
             hintText: "XXXX XXXX XXXX",
@@ -237,37 +272,53 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
             onChanged: (value) {
               final aadhaar = value.replaceAll(' ', '');
               aadhaarValue = aadhaar;
-              aadhaarValueForDocID=value;
+              aadhaarValueForDocID = value;
               setState(() {});
             },
           ),
           20.height,
 
-
           // Verify Aadhaar Button
           AppButton(
-            style: aadhaarNumberTextController.text.length == 14 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+            style:
+                aadhaarNumberTextController.text.length == 14
+                    ? AppButtonStyle.primary
+                    : AppButtonStyle.disableButton,
             isLoading: isLoading,
             title: context.appText.verifyAadhaar,
-            onPressed:  aadhaarNumberTextController.text.length == 14 ?  () async {
-              if (formKey.currentState!.validate()) {
-                await kycBloc.verifyDocId(aadhaarValueForDocID ??"");
-              }
-            } : (){},
+            onPressed:
+                aadhaarNumberTextController.text.length == 14
+                    ? () async {
+                      if (formKey.currentState!.validate()) {
+                        await kycBloc.verifyDocId(aadhaarValueForDocID ?? "");
+                        _storage.saveKey(
+                          AppString.sessionKey.aadharNumber,
+                          aadhaarNumberTextController.text,
+                        );
+                      }
+                    }
+                    : () {},
           ),
           20.height,
 
-
           // I will do it later Button
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.appText.iWillDoItLater, style: AppTextStyle.body2PrimaryColor),
+            onPressed: () {
+              Navigator.pop(context);
+              _storage.saveKey(
+                AppString.sessionKey.aadharNumber,
+                aadhaarNumberTextController.text,
+              );
+            },
+            child: Text(
+              context.appText.iWillDoItLater,
+              style: AppTextStyle.body2PrimaryColor,
+            ),
           ).center(),
         ],
       ),
     );
   }
-
 
   /// Aadhaar Verification
   Widget _buildAadhaarVerificationWidget(bool isLoading, BuildContext context) {
@@ -277,7 +328,10 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
         20.height,
 
         // Otp text field
-        Text(context.appText.verifyAadhaarOtpLabel, style: AppTextStyle.textFiled),
+        Text(
+          context.appText.verifyAadhaarOtpLabel,
+          style: AppTextStyle.textFiled,
+        ),
         10.height,
 
         OtpTextField(
@@ -297,15 +351,18 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
         // Verify button
         AppButton(
-          style: aadhaarNumberOtpTextController.text.length == 6 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+          style:
+              aadhaarNumberOtpTextController.text.length == 6
+                  ? AppButtonStyle.primary
+                  : AppButtonStyle.disableButton,
           isLoading: isLoading,
           title: context.appText.verifyCode,
           onPressed: () {
-            if(aadhaarNumberOtpTextController.text.length == 6){
-              if(requestID ==''){
+            if (aadhaarNumberOtpTextController.text.length == 6) {
+              if (requestID == '') {
                 requestID = '123456';
               }
-              final apiRequest =  AadhaarVerifyOtpApiRequest(
+              final apiRequest = AadhaarVerifyOtpApiRequest(
                 requestId: requestID ?? "123456",
                 otp: aadhaarNumberOtpTextController.text.trim(),
                 aadhaar: aadhaarValue ?? "",
@@ -318,12 +375,19 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
         // I will do it later Button
         TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(context.appText.iWillDoItLater, style: AppTextStyle.body2PrimaryColor),
+          onPressed: () async {
+            await _storage.saveKey(
+              AppString.sessionKey.aadharNumber,
+              aadhaarNumberTextController.text,
+            );
+            Navigator.pop(context);
+          },
+          child: Text(
+            context.appText.iWillDoItLater,
+            style: AppTextStyle.body2PrimaryColor,
+          ),
         ).center(),
       ],
     );
   }
-
-
 }

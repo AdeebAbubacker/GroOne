@@ -45,7 +45,8 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
 
               if(url.contains(ApiUrls.adminUrl)){
                 _isBack=true;
-                 await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);
+                 // await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);
+
                 if(mounted) {
                   Navigator.pop(context,true);
                 }

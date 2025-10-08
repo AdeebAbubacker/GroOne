@@ -41,7 +41,7 @@ class Documents {
     required this.chequeDocLinkDetails,
     required this.tdsDocLink,
     required this.tdsDocLinkDetails,
-    required this.aadharDocDetails,
+
     required this.aadharDocLink,
     required this.aadharDocLinkDetails,
   });
@@ -64,9 +64,9 @@ class Documents {
   final NDocLinkDetails? chequeDocLinkDetails;
   final List tdsDocLink;
   final List<NDocLinkDetails>? tdsDocLinkDetails;
-  final NDocLinkDetails? aadharDocDetails;
+
   final String? aadharDocLink;
-  final String? aadharDocLinkDetails;
+  final NDocLinkDetails? aadharDocLinkDetails;
 
   Documents copyWith({
     String? aadhar,
@@ -87,14 +87,14 @@ class Documents {
     NDocLinkDetails? chequeDocLinkDetails,
     List? tdsDocLink,
     List<NDocLinkDetails>? tdsDocLinkDetails,
-    NDocLinkDetails? aadharDocDetails,
+
      String? aadharDocLink,
-     String? aadharDocLinkDetails
+    NDocLinkDetails? aadharDocLinkDetails
   }) {
     return Documents(
       aadharDocLink: aadharDocLink ?? this.aadharDocLink,
       aadharDocLinkDetails:aadharDocLinkDetails??this.aadharDocLinkDetails ,
-      aadharDocDetails: aadharDocDetails ?? this.aadharDocDetails,
+
       aadhar: aadhar ?? this.aadhar,
       isAadhar: isAadhar ?? this.isAadhar,
       pan: pan ?? this.pan,
@@ -119,12 +119,11 @@ class Documents {
   factory Documents.fromJson(Map<String, dynamic> json){
 
     return Documents(
-        aadharDocDetails: json["aadharDocLinkDetails"] == null ||
-            json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails
-            .fromJson(json["aadharDocLinkDetails"]),
         aadhar: json["aadhar"] ?? "",
         aadharDocLink: json["aadhar_doc_link"],
-        aadharDocLinkDetails: json["aadharDocLinkDetails"],
+        aadharDocLinkDetails:json["aadharDocLinkDetails"] == null ||
+            json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails
+            .fromJson(json["aadharDocLinkDetails"]),
 
         isAadhar: json["isAadhar"] ?? false,
         pan: json["pan"] ?? "",
@@ -150,10 +149,13 @@ class Documents {
             json["chequeDocLinkDetails"] == '' ? null : NDocLinkDetails
             .fromJson(json["chequeDocLinkDetails"]),
         tdsDocLink: json["tdsDocLink"] ?? "",
-        tdsDocLinkDetails: json["tdsDocLinkDetails"] == null ? [] : List<
-            NDocLinkDetails>.from(
-            json['tdsDocLinkDetails'].map((x) => NDocLinkDetails.fromJson(x)))
-            .toList()
+      tdsDocLinkDetails: (json["tdsDocLinkDetails"] is List)
+          ? (json["tdsDocLinkDetails"] as List)
+          .whereType<Map<String, dynamic>>() // only keep valid maps
+          .map((x) => NDocLinkDetails.fromJson(x))
+          .toList()
+          : [],
+
 
     );
   }

@@ -154,6 +154,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     } else {
       aadhaarNumberTextController.text = "";
     }
+
+    _getFromLocal();
+  }
+
+
+  Future<void> _getFromLocal() async {
+    String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+
+    if((aadhaarNumber??"").isNotEmpty && (aadhaarNumberTextController.text).isEmpty){
+      aadhaarNumberTextController.text=aadhaarNumber??"";
+    }
   }
 
 
@@ -754,7 +765,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         bankName: bankNameTextController.text.trim(),
         branchName: branchNameTextController.text.trim(),
         chequeDocLink: cancelledChequeDocId ?? "",
-        tdsDocLink: [tdsDocId ?? ""],
+        tdsDocLink: (tdsDocId??"").isNotEmpty ?  [tdsDocId ?? ""]:[],
         gstin: gstInTextController.text,
         gstinDocLink: gstDocId ?? "",
         ifscCode: ifscCodeTextController.text,
@@ -896,7 +907,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
-
                                 children.addAll([
                                   25.height,
                                   _buildAadhaarWidget(context),
@@ -906,11 +916,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   if (isVP) ...[
                                     25.height,
                                     buildCancelledCheckWidget(),
+                                    if(!isLP)   25.height,
 
                                   ],
                                   if (isLP) ...[25.height, _buildTanWidget(
                                       isRequired: true
-                                  ),25.height],
+                                  ),
+                                    25.height],
 
                                 ]);
                               } else {
@@ -1670,7 +1682,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           return UploadAttachmentFiles(
             title: context.appText.tdsCertificate,
             multiFilesList: tdsDocLink,
-            isMandatory: true,
+
             isSingleFile: true,
             isLoading: tdsUploadState == Status.LOADING,
             allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
