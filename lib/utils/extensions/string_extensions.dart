@@ -13,6 +13,12 @@ extension StringExtensions on String? {
     return this![0].toUpperCase() + this!.substring(1).toLowerCase();
   }
 
+  /// Converts the entire string to uppercase (all words fully capitalized)
+  String get upperCaseWords {
+    if (this == null || this!.isEmpty) return '';
+    return this!.toUpperCase();
+  }
+
   /// Formats vehicle number with proper spacing for display
   /// Example: "QW45TH4567" becomes "QW 45 TH 4567"
   String get formatVehicleNumberForDisplay {

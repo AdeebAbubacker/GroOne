@@ -1,3 +1,4 @@
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -229,34 +230,69 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight).paddingSymmetric(vertical: 5),
-                10.width,
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [   
+                     SizedBox(
+                  width: 20,
+                  child: Stack(
                     children: [
-                  
-                      // Source (Pick Up)
-                      Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                      6.height,
-                      Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
-                  
-                      commonDivider(),
-                  
-                      // Destination
-                      Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                      6.height,
-                      Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                  
+                      Positioned(
+                        top: 0,
+                        bottom: 25,
+                        left: 9,
+                        child: DottedLine(
+                          direction: Axis.vertical,
+                          dashLength: 4,
+                          dashGapLength: 3,
+                          lineThickness: 1,
+                          dashColor: Colors.grey,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Icon(
+                          Icons.gps_fixed,
+                          color: AppColors.greenColor,
+                          size: 20,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.activeRedColor,
+                          size: 20,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
+                  10.width,
+              
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    
+                        // Source (Pick Up)
+                        Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                        6.height,
+                        Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
+                    
+                        commonDivider(),
+                    
+                        // Destination
+                        Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                        6.height,
+                        Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                    
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

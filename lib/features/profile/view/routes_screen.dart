@@ -1,3 +1,4 @@
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -124,76 +125,127 @@ class _RouteScreenState extends State<RouteScreen> {
   }
 
 
-  Widget _buildListBody({required int index, required RecentRouteData data}) {
-    final pickUp = data.loadRoute?.pickUpWholeAddr ?? '';
-    final drop = data.loadRoute?.dropWholeAddr ?? '';
-    final routeTitle = "${data.loadRoute?.pickUpLocation.split(RegExp(r'[,\s]+')).first ?? ''} - ${data.loadRoute?.dropLocation.split(RegExp(r'[,\s]+')).first ?? ''}";
+Widget _buildListBody({required int index, required RecentRouteData data}) {
+  final pickUp = data.loadRoute?.pickUpWholeAddr ?? '';
+  final drop = data.loadRoute?.dropWholeAddr ?? '';
+  final routeTitle =
+      "${data.loadRoute?.pickUpLocation.split(RegExp(r'[,\s]+')).first ?? ''} - ${data.loadRoute?.dropLocation.split(RegExp(r'[,\s]+')).first ?? ''}";
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primaryColor),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(routeTitle, style: AppTextStyle.h5),
-              Icon(Icons.bookmark, color: AppColors.primaryColor),
-            ],
-          ).paddingSymmetric(horizontal: 10, vertical: 10),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(
-              color: AppColors.white,
-              borderColor: AppColors.borderColor,
-            ),
+  return Container(
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      border: Border.all(color: AppColors.primaryColor),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Route title row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(routeTitle, style: AppTextStyle.h5),
+            Icon(Icons.bookmark, color: AppColors.primaryColor),
+          ],
+        ).paddingSymmetric(horizontal: 10, vertical: 10),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: commonContainerDecoration(
+            color: AppColors.white,
+            borderColor: AppColors.borderColor,
+          ),
+          child: IntrinsicHeight(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                SizedBox(
+                  width: 20,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        bottom: 25, 
+                        left: 9,
+                        child: DottedLine(
+                          direction: Axis.vertical,
+                          dashLength: 4,
+                          dashGapLength: 3,
+                          lineThickness: 1,
+                          dashColor: Colors.grey,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Icon(
+                          Icons.gps_fixed,
+                          color: AppColors.greenColor,
+                          size: 20,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.activeRedColor,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight).paddingSymmetric(vertical: 5),
                 10.width,
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Source
+                      Text(
+                        context.appText.source,
+                        style: AppTextStyle.body3.copyWith(
+                          fontSize: 14,
+                          color: AppColors.textBlackColor,
+                        ),
+                      ),
+                      6.height,
+                      Text(
+                        pickUp,
+                        style: AppTextStyle.body3.copyWith(
+                          fontSize: 12,
+                          color: AppColors.textBlackColor,
+                        ),
+                      ),
 
-                    // Source (Pick Up)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                        6.height,
-                        Text(pickUp, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                      ],
-                    ),
+                      Divider(),
 
-                    commonDivider(),
-
-                    // Destination
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                        6.height,
-                        Text(drop, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                      ],
-                    ),
-
-                  ],
-                ).expand()
+                      // Destination
+                      Text(
+                        context.appText.destination,
+                        style: AppTextStyle.body3.copyWith(
+                          fontSize: 14,
+                          color: AppColors.textBlackColor,
+                        ),
+                      ),
+                      6.height,
+                      Text(
+                        drop,
+                        style: AppTextStyle.body3.copyWith(
+                          fontSize: 12,
+                          color: AppColors.textBlackColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ).paddingSymmetric(horizontal: 10),
+          ),
+        ).paddingSymmetric(horizontal: 10),
 
-          10.height,
-        ],
-      ),
-    );
-  }
-
+        10.height,
+      ],
+    ),
+  );
+}
 }

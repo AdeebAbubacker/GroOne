@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'package:gro_one_app/features/terms_and_conditions/model/terms_and_conditions_model.dart';
@@ -26,12 +26,10 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
     super.initState();
   }
 
-
   void initFunction() => frameCallback(() async {
     termsAndConditionsBloc.add(TermsAndConditionsRequested());
   });
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +41,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
           } else if (state is TermsAndCondtionsSuccess) {
             return buildBodyWidget(state.termsAndconditionsModel?.data ?? []);
           } else if (state is TermsAndCondtionsError) {
-            return  Center(child: Text(context.appText.failedToLoadTermsAndConditions));
+            return Center(child: Text(context.appText.failedToLoadTermsAndConditions));
           } else {
             return const SizedBox();
           }
@@ -51,59 +49,55 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
       ),
     );
   }
- 
+
   // Terms and Conditions Body
   Widget buildBodyWidget(List<TermsAndConditionsDetails> termsData) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.appText.termsAndConditions.capitalizeFirst,
-          style: AppTextStyle.textBlackColor30w500,
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: ListView.separated(
-            itemCount: termsData.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 24),
-            itemBuilder: (context, index) {
-              final item = termsData[index];
-              final hasTitle = (item.sectionTitle ?? '').trim().isNotEmpty;
-              final hasContent = (item.content ?? '').trim().isNotEmpty;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (hasTitle)
-                    Text(
-                      "${item.sectionIdentifier ?? ''} ${item.sectionTitle ?? ''}".trim(),
-                      style: AppTextStyle.textBlackColor16w500,
-                    ),
-                  if (hasContent)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Html(
-                        data: item.content ?? '',
-                        style: {
-                          'body': Style.fromTextStyle(
-                        AppTextStyle.textBlackColor14w400.copyWith(
-                       fontSize: 14,
-                       fontWeight: FontWeight.w400,
-                       color: AppTextStyle.textBlackColor14w400.color,
-                         ),
-                        ),
-                        },
-                      ),
-                    ),
-                ],
-              );
-            },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.appText.termsAndConditions.upperCaseWords,
+            style: AppTextStyle.textBlackColor30w500,
           ),
-        ),
-      ],
-    ),
-  );
- }
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.separated(
+              itemCount: termsData.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 24),
+              itemBuilder: (context, index) {
+                final item = termsData[index];
+                final hasTitle = (item.sectionTitle ?? '').trim().isNotEmpty;
+                final hasContent = (item.content ?? '').trim().isNotEmpty;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (hasTitle)
+                      Text(
+                        "${item.sectionIdentifier ?? ''} ${item.sectionTitle ?? ''}".trim(),
+                        style: AppTextStyle.textBlackColor16w500,
+                      ),
+                    if (hasContent)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: HtmlWidget(
+                          item.content ?? '',
+                          textStyle: AppTextStyle.textBlackColor14w400.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppTextStyle.textBlackColor14w400.color,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
