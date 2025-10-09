@@ -397,6 +397,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         },
         onClickNoButton: () {
           Navigator.pop(context);
+           driverHomeCubitlocator.setIsFilterApplied(value: false);
           driverLoadBloc.add(FetchDriverLoads(loadStatus: loadStatus));
           clearAllFilterValues();
         },
