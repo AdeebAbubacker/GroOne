@@ -16,6 +16,9 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -249,41 +252,38 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                     context.appText.filter,
                     style: AppTextStyle.body1.copyWith(fontSize: 20),
                   ),
-                  10.height,
-                  BlocBuilder<LpLoadCubit, LpLoadState>(
-                    builder: (context, state) {
-                      final uiState = state.lpLoadTruckTypes;
-                      final truckTypes = uiState?.data ?? [];
+                  10.height,                  
+                BlocBuilder<LoadFilterCubit, LoadFilterState>(
+                builder: (context, state) {
+                final uiState = state.truckTypeUIState;
+                final truckTypeList = uiState?.data ?? [];
 
-                      return TruckTypeSearchableDropdown(
-                        selectedTruckType: truckTypes.firstWhereOrNull(
-                              (e) => e.id == selectedTruckTypeId,
-                        ),
-                        // preselect
-                        labelText: context.appText.truckType,
-                        hintText: context.appText.selectTruckType,
-                        fetchTruckTypes: (page, searchKey) async {
-                          await lpLoadLocator.getTruckType(loadMore: page > 1);
-                          // Stop scrolling when last page is reached
-                          if (lpLoadLocator.isTruckLastPage &&
-                              page > lpLoadLocator.trucksCurrentPage) {
-                            return [];
-                          }
+                return VehicleTypeSearchableDropdown(
+                  labelText: context.appText.vehicleType,
+                  hintText: context.appText.selectVehicleType,
+                  fetchVehicleTypes: () async {
 
-                          return lpLoadLocator.state.lpLoadTruckTypes?.data ??
-                              [];
-                        },
-                        onChanged: (selectedTruck) {
-                          setState(() {
-                            truckTypeDropDownValue =
-                            "${selectedTruck?.type} Truck - ${selectedTruck
-                                ?.subType}";
-                            selectedTruckTypeId = selectedTruck?.id;
-                          });
-                        },
-                      );
-                    },
+                    await context.read<LoadFilterCubit>().getAllVehicleType();
+                    return context
+                            .read<LoadFilterCubit>()
+                            .state
+                            .truckTypeUIState
+                            ?.data ??
+                        [];
+                  },
+                  selectedVehicleType: truckTypeList.firstWhereOrNull(
+                    (t) => t.id.toString() == truckTypeDropDownValue,
                   ),
+                  onChanged: (TruckTypeModel? value) {
+                    setState(() {
+                      truckTypeDropDownValue = value?.id.toString();
+                      selectedTruckTypeId = value?.id;
+                    });
+                  },
+                  mandatoryStar: false,
+                    );
+                   },
+                 ),
                   15.height,
                   BlocBuilder<LpLoadCubit, LpLoadState>(
                     builder: (context, state) {
