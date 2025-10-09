@@ -525,7 +525,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               originalFileName: result.value.originalFilename);
 
 
-          print("this is here success");
+
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {

@@ -481,7 +481,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            children: widget.loadItem.loadDocument.map((doc) {
                              return Column(
                                children: [
-                                if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? ''))
+                                if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? '') && doc.documentDetails?.documentType != 'Tax Invoice')
                                   TripDocuments(
                                     otherDocument: [],
                                     showViewMoreIcon: false,

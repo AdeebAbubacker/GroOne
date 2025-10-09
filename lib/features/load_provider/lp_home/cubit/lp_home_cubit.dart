@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_m
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/location_address_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
@@ -281,6 +282,21 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _setBluIDFlagState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch location address
+  void _setLocationAddressUIState(UIState<LocationAddressResponse>? uiState){
+    emit(state.copyWith(locationAddressState: uiState));
+  }
+  Future<void> fetchLocationAddress({required double lat, required double lng}) async {
+    _setLocationAddressUIState(UIState.loading());
+    dynamic  result = await _repo.fetchLocationAddress(lat: lat, lng: lng);
+    if (result is Success<LocationAddressResponse>) {
+      _setLocationAddressUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setLocationAddressUIState(UIState.error(result.type));
     }
   }
 

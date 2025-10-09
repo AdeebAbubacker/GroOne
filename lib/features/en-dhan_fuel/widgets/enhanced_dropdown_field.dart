@@ -49,7 +49,8 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
   @override
   void didUpdateWidget(EnhancedDropdownField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value || widget.options != oldWidget.options) {
+    if (widget.value != oldWidget.value ||
+        widget.options != oldWidget.options) {
       selectedValue = widget.value;
       // Use post frame callback to avoid setState during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -71,7 +72,7 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
       selectedDisplayText = selectedValue;
       if (widget.options.isNotEmpty) {
         final option = widget.options.firstWhere(
-              (opt) => opt['id'].toString() == selectedValue,
+          (opt) => opt['id'].toString() == selectedValue,
           orElse: () => <String, dynamic>{},
         );
         if (option.isNotEmpty) {
@@ -84,10 +85,9 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
     _controller.text = selectedDisplayText ?? '';
   }
 
-
   void _showDropdown() {
     if (widget.options.isEmpty) return;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -103,10 +103,13 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
                 final optionId = option['id'].toString();
                 final optionName = option['name'] ?? optionId;
                 final isSelected = selectedValue == optionId;
-                
+
                 return ListTile(
                   title: Text(optionName),
-                  trailing: isSelected ? Icon(Icons.check, color: AppColors.primaryColor) : null,
+                  trailing:
+                      isSelected
+                          ? Icon(Icons.check, color: AppColors.primaryColor)
+                          : null,
                   onTap: () {
                     setState(() {
                       selectedValue = optionId;
@@ -138,12 +141,18 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
             validator: widget.validator,
             decoration: commonInputDecoration(
               hintText: widget.hintText,
-              fillColor: selectedDisplayText != null ? AppColors.disabledFieldBackgroundColor : null,
-              focusColor: selectedDisplayText != null ? AppColors.disabledFieldBackgroundColor : null,
+              fillColor:
+                  selectedDisplayText != null
+                      ? AppColors.disabledFieldBackgroundColor
+                      : null,
+              focusColor:
+                  selectedDisplayText != null
+                      ? AppColors.disabledFieldBackgroundColor
+                      : null,
             ),
           ),
         ),
-        
+
         // Dropdown button on the right (only show if showDropdown is true)
         if (widget.showDropdown)
           Container(
@@ -152,7 +161,10 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
               onTap: widget.isLoading ? null : _showDropdown,
               child: Container(
                 height: 48, // Match the height of AppTextField
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.borderColor, width: 1),
                   borderRadius: BorderRadius.circular(commonTexFieldRadius),
@@ -168,7 +180,9 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.primaryColor,
+                            ),
                           ),
                         )
                       else
@@ -192,4 +206,4 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
     _controller.dispose();
     super.dispose();
   }
-} 
+}

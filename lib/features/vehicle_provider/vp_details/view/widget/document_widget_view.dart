@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/preview_document_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_others_document.dart';
 
@@ -24,50 +25,78 @@ class DocumentWidgetView extends StatelessWidget {
   final Function(String)? onGetFile;
   final DocumentEntity? documentEntity;
   final LoadDetailsCubit? loadDetailsCubit;
+  final LoadDetailModelData? loadDetailsModelData;
   final int index;
+
   const DocumentWidgetView({
     super.key,
     this.hintText,
     this.onGetFile,
     this.documentEntity,
     this.loadDetailsCubit,
+    this.loadDetailsModelData,
     required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
-    return documentEntity?.loadDocument  != null && (documentEntity?.loadDocument??[]).isNotEmpty
+    return documentEntity?.loadDocument != null &&
+            (documentEntity?.loadDocument ?? []).isNotEmpty
         ? PreviewDocumentWidget(
-        onClickViewMoreIcon: () {
-           Navigator.push(context, commonRoute(ViewOtherDocuments(
+          onClickViewMoreIcon: () {
 
-          documentEntity:documentEntity ,
-          cubit:loadDetailsCubit,
-        )));
-      },
-        showViewMoreButton:documentEntity?.documentType==DocumentFileType.uploadOtherDocument.documentType,
-        showAddMoreButton: documentEntity?.documentType==DocumentFileType.uploadOtherDocument.documentType && (loadDetailsCubit?.isVisibleAddMoreDocument()??false) && loadDetailsCubit?.state.loadStatus==LoadStatus.loading,
-      showDeleteIcon:  loadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== DocumentFileType.proofOfDelivery.documentType || loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=DocumentFileType.uploadOtherDocument.documentType ,
-      showDeleteLoader: documentEntity?.deleteLoading,
-      onClickDeleteIcon: () {
-        loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.first.loadDocumentId??"",index);
-      },
-        onClickDownload: ()  {
-         loadDetailsCubit?.downloadDocument(documentEntity?.loadDocument?.first.documentId??"", index);
-      },
-        onClickAddMoreButton: () {
-          pickFile(context);
-        },
-       isLoading: documentEntity?.isLoading??false,
-        documentEntity: documentEntity!,
-        loadDocument: documentEntity!.loadDocument!.first).paddingTop(15)
+            Navigator.push(
+              context,
+              commonRoute(
+                ViewOtherDocuments(
+                  vpLoadApproval:  loadDetailsModelData?.loadApproval,
+                  documentEntity: documentEntity,
+                  cubit: loadDetailsCubit,
+                ),
+              ),
+            );
+          },
+          showViewMoreButton:
+              documentEntity?.documentType ==
+              DocumentFileType.uploadOtherDocument.documentType,
+          showAddMoreButton: documentEntity?.documentType ==
+                  DocumentFileType.uploadOtherDocument.documentType &&
+              (loadDetailsCubit?.isVisibleAddMoreDocument() ?? false) &&
+              loadDetailsCubit?.state.loadStatus == LoadStatus.loading,
+          showDeleteIcon:
+             ( loadDetailsCubit?.state.loadStatus == LoadStatus.unloading &&
+                  documentEntity?.documentType ==
+                      DocumentFileType.proofOfDelivery.documentType && loadDetailsModelData?.loadApproval?.podApproved != true) ||
+              (loadDetailsCubit?.state.loadStatus == LoadStatus.loading &&
+                  documentEntity?.documentType !=
+                      DocumentFileType.uploadOtherDocument.documentType &&
+                  loadDetailsModelData?.loadApproval?.documentApproved != true),
+          showDeleteLoader: documentEntity?.deleteLoading,
+          onClickDeleteIcon: () {
+            loadDetailsCubit?.deleteLoadDocument(
+              documentEntity?.loadDocument?.first.loadDocumentId ?? "",
+              index,
+            );
+          },
+          onClickDownload: () {
+            loadDetailsCubit?.downloadDocument(
+              documentEntity?.loadDocument?.first.documentId ?? "",
+              index,
+            );
+          },
+          onClickAddMoreButton: () {
+            pickFile(context);
+          },
+          isLoading: documentEntity?.isLoading ?? false,
+          documentEntity: documentEntity!,
+          loadDocument: documentEntity!.loadDocument!.first,
+        ).paddingTop(15)
         : Visibility(
-      visible: documentEntity?.visible??false,
+          visible: documentEntity?.visible ?? false,
           child: GestureDetector(
             onTap: () {
               pickFile(context);
             },
-
             child: DottedBorder(
               color: AppColors.deActiveButtonColor,
               strokeWidth: 1,
@@ -85,30 +114,28 @@ class DocumentWidgetView extends StatelessWidget {
                     Text(
                       hintText ?? context.appText.uploadDocument,
                       style: AppTextStyle.textFiled.copyWith(
-                        fontStyle: FontStyle.italic
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                     Spacer(),
-                    if(documentEntity?.isLoading??false)
+                    if (documentEntity?.isLoading ?? false)
                       CircularProgressIndicator()
                     else
-                    SvgPicture.asset(
-                      AppIcons.svg.documentUpload,
-                      width: 16,
-                      colorFilter: AppColors.svg(AppColors.iconColor),
-                    ),
+                      SvgPicture.asset(
+                        AppIcons.svg.documentUpload,
+                        width: 16,
+                        colorFilter: AppColors.svg(AppColors.iconColor),
+                      ),
                     10.width,
                   ],
                 ),
               ),
             ),
-          ).paddingTop(
-            10
-          ),
+          ).paddingTop(10),
         );
   }
 
-  void pickFile(BuildContext context){
+  void pickFile(BuildContext context) {
     commonHideKeyboard(context);
     commonBottomSheet(
       context: context,

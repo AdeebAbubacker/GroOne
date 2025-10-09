@@ -36,6 +36,16 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
     AppIcons.svg.trailer,
   ];
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Select first truck type by default
+    final types = getUniqueTypes(widget.dataList);
+    if (types.isNotEmpty) {
+      selectedType = types.first;
+    }
+  }
 
 
   List<String> getUniqueTypes(List<LoadTruckTypeListModel> dataList) {

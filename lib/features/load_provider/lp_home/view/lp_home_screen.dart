@@ -709,11 +709,11 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                     String? destinationLocation;
 
                     if (state.pickup?.status == Status.SUCCESS && state.pickup?.data != null){
-                      pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
+                      pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize} " : ""}${state.pickup!.data!.address.toString().capitalize}");
                     }
 
                     if (state.destination?.status == Status.SUCCESS && state.destination?.data != null){
-                        destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
+                        destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize} " : ""}${state.destination!.data!.address.toString().capitalize}");
                     }
 
                     return Column(
@@ -929,11 +929,11 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                     initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateTimeTextController.text),
                   );
 
-                  if(!context.mounted) return;
+                  if(!context.mounted || date == null) return;
                    String? time = await commonTimePicker(context);
 
 
-                  if (date != null && time != null) {
+                  if (time != null) {
                     dateTimeTextController.text = date;
                     selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;

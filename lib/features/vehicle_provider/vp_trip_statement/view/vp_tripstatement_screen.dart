@@ -48,42 +48,45 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: CommonAppBar(title: context.appText.tripStatement),
-      body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
-        child: Column(
-          children: [
-            BlocBuilder<VpTripStatementCubit,VpTripStatementState>(
-              builder:(context, state)  {
-                final status=state.tripStatementUIState?.status;
-
-                if (status == Status.LOADING) {
-                  return CircularProgressIndicator().center();
-                }
-
-                if (status == Status.ERROR) {
-                  return VpHelper.withSliverRefresh(
-                          () => _fetchTripStatement(),
-                      child: genericErrorWidget(
-                        error: state.tripStatementUIState?.errorType,
-                      ));
-                }
-                if (status == Status.SUCCESS) {
-                  final tripStatement = state.tripStatementUIState?.data;
-                  if (tripStatement == null) {
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: CommonAppBar(title: context.appText.tripStatement),
+        body: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
+          child: Column(
+            children: [
+              BlocBuilder<VpTripStatementCubit,VpTripStatementState>(
+                builder:(context, state)  {
+                  final status=state.tripStatementUIState?.status;
+      
+                  if (status == Status.LOADING) {
+                    return CircularProgressIndicator().center().expand();
+                  }
+      
+                  if (status == Status.ERROR) {
                     return VpHelper.withSliverRefresh(
                             () => _fetchTripStatement(),
-                        child: genericErrorWidget(error: NotFoundError()));
+                        child: genericErrorWidget(
+                          error: state.tripStatementUIState?.errorType,
+                        ));
                   }
-                  return buildTripStatementView(tripStatement);
+                  if (status == Status.SUCCESS) {
+                    final tripStatement = state.tripStatementUIState?.data;
+                    if (tripStatement == null) {
+                      return VpHelper.withSliverRefresh(
+                              () => _fetchTripStatement(),
+                          child: genericErrorWidget(error: NotFoundError()));
+                    }
+                    return buildTripStatementView(tripStatement);
+                  }
+      
+                  return genericErrorWidget(error: GenericError());
                 }
-
-                return genericErrorWidget(error: GenericError());
-              }
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

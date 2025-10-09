@@ -9,6 +9,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import 'memo_otp_dialog_widget.dart';
@@ -46,81 +47,80 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
 
   @override
   Widget build(BuildContext context) {
-    final notes = [
-      context.appText.disclaimerNote1,
-      context.appText.disclaimerNote2,
-      context.appText.disclaimerNote3,
-      context.appText.disclaimerNote4,
-      context.appText.disclaimerNote5,
-    ];
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: AppBar(
-        title: Text(context.appText.performaInvoice),
-        titleTextStyle: AppTextStyle.h4,
-        centerTitle: true,
-      ),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: AppBar(
+          title: Text(context.appText.loadingMemo),
+          titleTextStyle: AppTextStyle.h4,
+          centerTitle: true,
+        ),
 
-      body: BlocBuilder<LpLoadCubit, LpLoadState>(
-          builder: (context, state) {
-            final uiState = state.lpLoadMemoDetails;
+        body: BlocBuilder<LpLoadCubit, LpLoadState>(
+            builder: (context, state) {
+              final uiState = state.lpLoadMemoDetails;
 
 
-            if (uiState == null || uiState.status == Status.LOADING) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (uiState == null || uiState.status == Status.LOADING) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (uiState.status == Status.ERROR) {
-              return genericErrorWidget(error: uiState.errorType, onRefresh: initFunction);
-            }
+              if (uiState.status == Status.ERROR) {
+                return genericErrorWidget(error: uiState.errorType, onRefresh: initFunction);
+              }
 
-            if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
-              return Center(
-                child: Text(context.appText.noMemoFound, style: TextStyle(fontSize: 16)),
+              if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
+                return Center(
+                  child: Text(context.appText.noMemoFound, style: TextStyle(fontSize: 16)),
+                );
+              }
+
+              final  memoDetails = uiState.data;
+
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+                child: Column(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          buildMainDetailWidget(memoDetails!),
+                          buildBankDetailsWidget(memoDetails),
+                          buildTruckSupplierWidget(memoDetails),
+                          buildNotesWidget(memoDetails),
+                        ],
+                      ),
+                    ).expand(),
+                    AppButton(
+                      title: context.appText.eSignMemo,
+                      isLoading: lpLoadLocator.state.lpLoadMemoSendOtp?.status == Status.LOADING,
+                      onPressed: () async {
+                        await lpLoadLocator.sendOtp(loadId: widget.loadId);
+                        final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
+                        if (otpState?.status == Status.SUCCESS) {
+                          final message = otpState?.data?.message ?? "";
+                          if (context.mounted) {
+                            ToastMessages.success(message: message);
+                            AppDialog.show(context,dismissible: false, child: MemoOtpDialogWidget(
+                                parentContext: context, loadId: widget.loadId));
+                          }
+                          setState(() {});
+                        } else if (otpState?.status == Status.ERROR) {
+                          final errorType = otpState?.errorType;
+                          ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()),
+                          );
+                        }
+                      },
+                    ).paddingOnly(top: 10)
+                  ],
+                ),
               );
             }
+        ),
 
-            final  memoDetails = uiState.data;
-
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                spacing: 10,
-                children: [
-                  buildMainDetailWidget(memoDetails!),
-                  buildBankDetailsWidget(memoDetails),
-                  buildTruckSupplierWidget(memoDetails),
-                  buildNotesWidget(notes),
-                  10.height,
-                  AppButton(
-                    title: context.appText.eSignMemo,
-                    isLoading: lpLoadLocator.state.lpLoadMemoSendOtp?.status == Status.LOADING,
-                    onPressed: () async {
-                      await lpLoadLocator.sendOtp(loadId: widget.loadId);
-                      final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
-                      if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.message ?? "";
-                        if (context.mounted) {
-                          ToastMessages.success(message: message);
-                          AppDialog.show(context,dismissible: false, child: MemoOtpDialogWidget(
-                              parentContext: context, loadId: widget.loadId));
-                        }
-                        setState(() {});
-                      } else if (otpState?.status == Status.ERROR) {
-                        final errorType = otpState?.errorType;
-                        ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()),
-                        );
-                      }
-                    },
-                  ),
-                  40.height,
-                ],
-              ),
-            ),
-          );
-        }
       ),
     );
   }
@@ -189,7 +189,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   }
 
   ///Disclaimer
-  Widget buildNotesWidget(notes) {
+  Widget buildNotesWidget(LpLoadMemoResponse memoDetails) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -204,10 +204,24 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           Column(
             spacing: 5,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(notes.length, (index) {
-              return Text(
-                '${index + 1}. ${notes[index]}',
-                style: AppTextStyle.body4.copyWith(color: AppColors.black),
+            children: List.generate(memoDetails.disclaimer!.length, (index) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '${index + 1}.',
+                    style: AppTextStyle.body4.copyWith(color: AppColors.black),
+                  ),
+                  5.width,
+                  Expanded(
+                    child: Text(
+                      '${memoDetails.disclaimer?[index] ?? ''}',
+                      style: AppTextStyle.body4.copyWith(color: AppColors.black),
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                ],
               );
             }),
           ),

@@ -235,12 +235,15 @@ class NotificationService {
       if (Platform.isAndroid) {
         // Android - AwesomeNotifications permission
         final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+
         if (!isAllowed) {
           try {
-            await AwesomeNotifications().requestPermissionToSendNotifications();
+
+            // await AwesomeNotifications().requestPermissionToSendNotifications();
           } catch (e) {
+
             // fallback: open settings page
-            await AwesomeNotifications().showNotificationConfigPage();
+            // await AwesomeNotifications().showNotificationConfigPage();
           }
         }
       }

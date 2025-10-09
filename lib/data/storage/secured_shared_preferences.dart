@@ -13,7 +13,7 @@ class SecuredSharedPreferences {
     try {
       return await _secureStorage.read(key: key);
     } catch (e) {
-      print("Decryption failed for key=$key. Error: $e");
+
       await _secureStorage.delete(key: key); // clear corrupted value
       return null;
     }
@@ -59,7 +59,7 @@ class SecuredSharedPreferences {
         return int.tryParse(value);
       }
     } catch (e) {
-      print("Decryption failed for int key=$key. Error: $e");
+
       await _secureStorage.delete(key: key);
     }
     return null;
@@ -72,7 +72,7 @@ class SecuredSharedPreferences {
         return value == true.toString();
       }
     } catch (e) {
-      print("Decryption failed for bool key=$key. Error: $e");
+
       await _secureStorage.delete(key: key);
     }
     return false;

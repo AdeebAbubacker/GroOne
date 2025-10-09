@@ -177,6 +177,7 @@ class ApiUrls {
       "$_baseUrl$_loadDiscovery$_path$_v1$_load/podCenterList";
   static final String lpLoadTripDetails =
       "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
+  static final String  getLocationAddress = "$_baseUrl$_rateDiscovery$_path$_v1$_map/place-id-from-latlng";
 
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";

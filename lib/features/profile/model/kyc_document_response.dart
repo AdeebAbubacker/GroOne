@@ -5,36 +5,20 @@ class KycDocumentResponse {
     required this.isKyc,
   });
 
-  final String customerId;
+  final String? customerId;
   final Documents? documents;
-  final int isKyc;
+  final int? isKyc;
 
-  KycDocumentResponse copyWith({
-    String? customerId,
-    Documents? documents,
-    int? isKyc,
-  }) {
+  factory KycDocumentResponse.fromJson(Map<String, dynamic> json) {
     return KycDocumentResponse(
-      customerId: customerId ?? this.customerId,
-      documents: documents ?? this.documents,
-      isKyc: isKyc ?? this.isKyc,
+      customerId: json["customerId"],
+      documents:
+          json["documents"] == null
+              ? null
+              : Documents.fromJson(json["documents"]),
+      isKyc: json["isKyc"],
     );
   }
-
-  factory KycDocumentResponse.fromJson(Map<String, dynamic> json){
-    return KycDocumentResponse(
-      customerId: json["customerId"] ?? "",
-      documents: json["documents"] == null ? null : Documents.fromJson(json["documents"]),
-      isKyc: json["isKyc"] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "customerId": customerId,
-    "documents": documents?.toJson(),
-    "isKyc": isKyc,
-  };
-
 }
 
 class Documents {
@@ -57,7 +41,9 @@ class Documents {
     required this.chequeDocLinkDetails,
     required this.tdsDocLink,
     required this.tdsDocLinkDetails,
-    required this.aadharDocDetails,
+
+    required this.aadharDocLink,
+    required this.aadharDocLinkDetails,
   });
 
   final String aadhar;
@@ -76,9 +62,11 @@ class Documents {
   final bool isTan;
   final String chequeDocLink;
   final NDocLinkDetails? chequeDocLinkDetails;
-  final String tdsDocLink;
-  final NDocLinkDetails? tdsDocLinkDetails;
-  final NDocLinkDetails? aadharDocDetails;
+  final List tdsDocLink;
+  final List<NDocLinkDetails>? tdsDocLinkDetails;
+
+  final String? aadharDocLink;
+  final NDocLinkDetails? aadharDocLinkDetails;
 
   Documents copyWith({
     String? aadhar,
@@ -97,12 +85,16 @@ class Documents {
     bool? isTan,
     String? chequeDocLink,
     NDocLinkDetails? chequeDocLinkDetails,
-    String? tdsDocLink,
-    NDocLinkDetails? tdsDocLinkDetails,
-    NDocLinkDetails? aadharDocDetails,
+    List? tdsDocLink,
+    List<NDocLinkDetails>? tdsDocLinkDetails,
+
+     String? aadharDocLink,
+    NDocLinkDetails? aadharDocLinkDetails
   }) {
     return Documents(
-      aadharDocDetails: aadharDocDetails??this.aadharDocDetails,
+      aadharDocLink: aadharDocLink ?? this.aadharDocLink,
+      aadharDocLinkDetails:aadharDocLinkDetails??this.aadharDocLinkDetails ,
+
       aadhar: aadhar ?? this.aadhar,
       isAadhar: isAadhar ?? this.isAadhar,
       pan: pan ?? this.pan,
@@ -125,51 +117,80 @@ class Documents {
   }
 
   factory Documents.fromJson(Map<String, dynamic> json){
+
     return Documents(
-      aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
-      aadhar: json["aadhar"] ?? "",
-      isAadhar: json["isAadhar"] ?? false,
-      pan: json["pan"] ?? "",
-      panDocLink: json["panDocLink"] ?? "",
-      panDocLinkDetails: json["panDocLinkDetails"] == null  || json["panDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["panDocLinkDetails"]),
-      isPan: json["isPan"] ?? false,
-      gstin: json["gstin"] ?? "",
-      gstinDocLink: json["gstinDocLink"] ?? "",
-      gstinDocLinkDetails: json["gstinDocLinkDetails"] == null  || json["gstinDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["gstinDocLinkDetails"]),
-      isGstin: json["isGstin"] ?? false,
-      tan: json["tan"] ?? "",
-      tanDocLink: json["tanDocLink"] ?? "",
-      tanDocLinkDetails: json["tanDocLinkDetails"] == null  || json["tanDocLinkDetails"] == '' ?  null : NDocLinkDetails.fromJson(json["tanDocLinkDetails"]),
-      isTan: json["isTan"] ?? false,
-      chequeDocLink: json["chequeDocLink"] ?? "",
-      chequeDocLinkDetails: json["chequeDocLinkDetails"] == null || json["chequeDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["chequeDocLinkDetails"]),
-      tdsDocLink: json["tdsDocLink"] ?? "",
-      tdsDocLinkDetails: json["tdsDocLinkDetails"] == null || json["tdsDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["tdsDocLinkDetails"]),
+        aadhar: json["aadhar"] ?? "",
+        aadharDocLink: json["aadhar_doc_link"],
+        aadharDocLinkDetails:json["aadharDocLinkDetails"] == null ||
+            json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails
+            .fromJson(json["aadharDocLinkDetails"]),
+
+        isAadhar: json["isAadhar"] ?? false,
+        pan: json["pan"] ?? "",
+        panDocLink: json["panDocLink"] ?? "",
+        panDocLinkDetails: json["panDocLinkDetails"] == null ||
+            json["panDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(
+            json["panDocLinkDetails"]),
+        isPan: json["isPan"] ?? false,
+        gstin: json["gstin"] ?? "",
+        gstinDocLink: json["gstinDocLink"] ?? "",
+        gstinDocLinkDetails: json["gstinDocLinkDetails"] == null ||
+            json["gstinDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(
+            json["gstinDocLinkDetails"]),
+        isGstin: json["isGstin"] ?? false,
+        tan: json["tan"] ?? "",
+        tanDocLink: json["tanDocLink"] ?? "",
+        tanDocLinkDetails: json["tanDocLinkDetails"] == null ||
+            json["tanDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(
+            json["tanDocLinkDetails"]),
+        isTan: json["isTan"] ?? false,
+        chequeDocLink: json["chequeDocLink"] ?? "",
+        chequeDocLinkDetails: json["chequeDocLinkDetails"] == null ||
+            json["chequeDocLinkDetails"] == '' ? null : NDocLinkDetails
+            .fromJson(json["chequeDocLinkDetails"]),
+        tdsDocLink: json["tdsDocLink"] ?? "",
+      tdsDocLinkDetails: (json["tdsDocLinkDetails"] is List)
+          ? (json["tdsDocLinkDetails"] as List)
+          .whereType<Map<String, dynamic>>() // only keep valid maps
+          .map((x) => NDocLinkDetails.fromJson(x))
+          .toList()
+          : [],
+
 
     );
   }
+}
 
-  Map<String, dynamic> toJson() => {
-    "aadhar": aadhar,
-    "isAadhar": isAadhar,
-    "pan": pan,
-    "panDocLink": panDocLink,
-    "panDocLinkDetails": panDocLinkDetails?.toJson(),
-    "isPan": isPan,
-    "gstin": gstin,
-    "gstinDocLink": gstinDocLink,
-    "gstinDocLinkDetails": gstinDocLinkDetails?.toJson(),
-    "isGstin": isGstin,
-    "tan": tan,
-    "tanDocLink": tanDocLink,
-    "tanDocLinkDetails": tanDocLinkDetails?.toJson(),
-    "isTan": isTan,
-    "chequeDocLink": chequeDocLink,
-    "chequeDocLinkDetails": chequeDocLinkDetails,
-    "tdsDocLink": tdsDocLink,
-    "tdsDocLinkDetails": tdsDocLinkDetails,
-  };
+class PanDocLinkDetails {
+  PanDocLinkDetails({
+    required this.documentId,
+    required this.title,
+    required this.documentType,
+    required this.fileSize,
+    required this.createdAt,
+    required this.fileExtension,
+    required this.filePath,
+  });
 
+  final String? documentId;
+  final String? title;
+  final String? documentType;
+  final String? fileSize;
+  final DateTime? createdAt;
+  final String? fileExtension;
+  final String? filePath;
+
+  factory PanDocLinkDetails.fromJson(Map<String, dynamic> json) {
+    return PanDocLinkDetails(
+      documentId: json["documentId"],
+      title: json["title"],
+      documentType: json["documentType"],
+      fileSize: json["fileSize"],
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      fileExtension: json["fileExtension"],
+      filePath: json["filePath"],
+    );
+  }
 }
 
 class NDocLinkDetails {
@@ -207,7 +228,7 @@ class NDocLinkDetails {
     );
   }
 
-  factory NDocLinkDetails.fromJson(Map<String, dynamic> json){
+  factory NDocLinkDetails.fromJson(Map<String, dynamic> json) {
     return NDocLinkDetails(
       documentId: json["documentId"] ?? "",
       title: json["title"] ?? "",
@@ -226,5 +247,4 @@ class NDocLinkDetails {
     "createdAt": createdAt?.toIso8601String(),
     "fileExtension": fileExtension,
   };
-
 }

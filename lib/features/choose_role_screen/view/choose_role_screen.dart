@@ -80,15 +80,15 @@ class ChooseRoleScreen extends StatelessWidget {
                         },
                         imageString: AppImage.png.lpVp,
                       ),
-                      buildRoleSelectionTileWidget(
-                        isSelected: state.index == 3 ? true : false,
-                        text1:  context.appText.fleetHeading,
-                        text2: context.appText.fleet,
-                        onTap: () {
-                          context.read<RoleBloc>().add(const ChangeIndex(index: 3));
-                        },
-                        imageString: AppImage.png.fleet,
-                      ),
+                      // buildRoleSelectionTileWidget(
+                      //   isSelected: state.index == 3 ? true : false,
+                      //   text1:  context.appText.fleetHeading,
+                      //   text2: context.appText.fleet,
+                      //   onTap: () {
+                      //     context.read<RoleBloc>().add(const ChangeIndex(index: 3));
+                      //   },
+                      //   imageString: AppImage.png.fleet,
+                      // ),
                     ],
                   ),
                   30.height,
