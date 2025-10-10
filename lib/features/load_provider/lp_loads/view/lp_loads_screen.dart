@@ -294,22 +294,17 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                         labelText: context.appText.route,
                         hintText: context.appText.searchRoutes,
                         fetchRoutes: (page, searchKey) async {
-                          await lpLoadLocator.getRouteDetails(
-                            search: searchKey,
-                            loadMore: page > 1,
-                          );
-                          if (lpLoadLocator.isRoutesLastPage &&
-                              page > lpLoadLocator.rootsCurrentPage) {
-                            return [];
-                          }
-                          return lpLoadLocator
-                              .state
-                              .lpLoadRouteDetails
-                              ?.data
-                              ?.data
-                              ?.routeList ??
-                              [];
-                        },
+                        final newRoutes = await lpLoadLocator.getRouteDetails(
+                          search: searchKey,
+                          loadMore: page > 1,
+                        );
+
+                        if (lpLoadLocator.isRoutesLastPage &&
+                            page > lpLoadLocator.rootsCurrentPage) {
+                          return [];
+                        }
+                        return newRoutes;
+                      },
                         selectedRoute: routeList.firstWhereOrNull(
                               (r) => r.masterLaneId == selectedRoute,
                         ),

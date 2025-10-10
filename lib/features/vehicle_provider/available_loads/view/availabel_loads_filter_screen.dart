@@ -7,10 +7,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/vp_lans_dropdown.dart'
-    hide VehicleTypeSearchableDropdown, LoadTypeSearchableDropdown;
-import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
@@ -109,11 +105,11 @@ class _AvailableLoadsFilterScreenState
     );
   }
 
-  void _getLaneId(LaneDetailsResponse? selectedItem) {
+  void _getLaneId(RouteList? selectedItem) {
     laneId = selectedItem?.masterLaneId;
     filterCubit.setLensData(
       leneId: selectedItem?.masterLaneId,
-      value: '${selectedItem?.lane}',
+      value: '${selectedItem?.fromLocation} - ${selectedItem?.toLocation}',
     );
   }
 
@@ -141,9 +137,9 @@ class _AvailableLoadsFilterScreenState
   /// Trigger auto-selection when data is available
   void _triggerAutoSelection() {
     // Get the current route data from ProfileCubit
-    final profileCubit = locator<ProfileCubit>();
+    final profileCubit = locator<LpLoadCubit>();
     final routeList =
-        profileCubit.state.profileDetailUIState?.data?.customer?.laneDetails ??
+        profileCubit.state.lpLoadRouteDetails?.data?.data?.routeList ??
         [];
 
     if (routeList.isNotEmpty) {
@@ -159,7 +155,7 @@ class _AvailableLoadsFilterScreenState
   }
 
   /// Auto-select the first matching route based on source and destination
-  void _autoSelectFirstMatchingRoute(List<LaneDetailsResponse> routeList) {
+  void _autoSelectFirstMatchingRoute(List<RouteList> routeList) {
     if (widget.initialRouteData?.source == null ||
         widget.initialRouteData?.destination == null) {
       return;
@@ -170,7 +166,7 @@ class _AvailableLoadsFilterScreenState
     // Find routes that match the search term
     final matchingRoutes =
         routeList.where((route) {
-          final laneText = route.lane?.toLowerCase() ?? '';
+          final laneText = route.fromLocation?.name.toLowerCase() ?? '';
           final searchLower = searchTerm.toLowerCase();
           final matches = laneText.contains(searchLower);
           return matches;
@@ -249,94 +245,39 @@ class _AvailableLoadsFilterScreenState
           20.height,
 
           // Lane Type
-          BlocBuilder<ProfileCubit, ProfileState>(
-            builder: (context, state) {
-              final uiState = state.profileDetailUIState;
-              final routeList = uiState?.data?.customer?.laneDetails ?? [];
+           BlocBuilder<LpLoadCubit, LpLoadState>(
+                    builder: (context, state) {
+                      final uiState = state.lpLoadRouteDetails;
+                      final routeList = uiState?.data?.data?.routeList ?? [];
 
-              // Auto-select route from chat data if available
-              if (widget.initialRouteData?.source != null &&
-                  widget.initialRouteData?.destination != null &&
-                  laneId == null &&
-                  routeList.isNotEmpty) {
-                // Immediate auto-selection within the BlocBuilder
-                final searchTerm =
-                    '${widget.initialRouteData!.source} ${widget.initialRouteData!.destination}';
-                final matchingRoutes =
-                    routeList.where((route) {
-                      final laneText = route.lane?.toLowerCase() ?? '';
-                      final searchLower = searchTerm.toLowerCase();
-                      return laneText.contains(searchLower);
-                    }).toList();
+                      return RouteSearchableDropdown(
+                        labelText: context.appText.route,
+                        hintText: context.appText.searchRoutes,
+                        fetchRoutes: (page, searchKey) async {
+                        final newRoutes = await lpLoadLocator.getRouteDetails(
+                          search: searchKey,
+                          loadMore: page > 1,
+                        );
 
-                if (matchingRoutes.isNotEmpty) {
-                  final firstRoute = matchingRoutes.first;
-                  // Set the selection immediately
-                  laneId = firstRoute.masterLaneId;
-                  laneDropDownValue = firstRoute.masterLaneId.toString();
-                  _getLaneId(firstRoute);
-
-                  // Auto-apply filter after a short delay
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    if (mounted) {
-                      widget.onFilterApplied({
-                        "commodityId": commodityId,
-                        "truckTypeId": truckTypeId,
-                        "lensType": laneId,
-                      });
-                      Navigator.pop(context);
-                      filterCubit.setIsFilterApplied(value: true);
-                    }
-                  });
-                }
-              }
-
-              // Find the selected item and ensure it's visible in the dropdown
-              LaneDetailsResponse? selectedItem;
-              if (laneId != null) {
-                selectedItem = routeList.firstWhereOrNull(
-                  (r) => r.masterLaneId == laneId,
-                );
-              }
-
-              return VpRouteSearchableDropdown(
-                labelText: context.appText.route,
-                hintText: context.appText.searchRoutes,
-                fetchRoutes: (page, searchKey) async {
-                  // If we have chat data and no search key, use source + destination as search
-                  String searchTerm = searchKey ?? '';
-                  if (widget.initialRouteData?.source != null &&
-                      widget.initialRouteData?.destination != null &&
-                      searchKey == null) {
-                    searchTerm =
-                        '${widget.initialRouteData!.source} ${widget.initialRouteData!.destination}';
-                  }
-
-                  // Filter routes based on search term
-                  if (searchTerm.isNotEmpty) {
-                    final filteredRoutes =
-                        routeList.where((route) {
-                          final laneText = route.lane?.toLowerCase() ?? '';
-                          final searchLower = searchTerm.toLowerCase();
-                          return laneText.contains(searchLower);
-                        }).toList();
-                    return filteredRoutes;
-                  }
-
-                  return routeList;
-                },
-                selectedRoute: selectedItem,
-                onChanged: (LaneDetailsResponse? value) {
-                  setState(() {
-                    laneDropDownValue = value?.masterLaneId.toString();
-                    _getLaneId(value);
-                  });
-                },
-                mandatoryStar: false,
-              );
-            },
-          ),
-
+                        if (lpLoadLocator.isRoutesLastPage &&
+                            page > lpLoadLocator.rootsCurrentPage) {
+                          return [];
+                        }
+                        return newRoutes;
+                      },
+                        selectedRoute: routeList.firstWhereOrNull(
+                              (r) => r.masterLaneId == laneId,
+                        ),
+                        onChanged: (RouteList? value) {
+                          setState(() {
+                            laneDropDownValue = value?.masterLaneId.toString();
+                            _getLaneId(value);
+                          });
+                        },
+                        mandatoryStar: false,
+                      );
+                    },
+                  ),
           20.height,
 
           // Road Type
