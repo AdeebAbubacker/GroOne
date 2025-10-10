@@ -308,22 +308,21 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Fetches the LP load route Details.
-
   int _routesCurrentPage = 1;
   bool _routesIsLastPage = false;
   bool _routesIsLoadingMore = false;
 
-  Future<void> getRouteDetails({
+  Future<List<RouteList>> getRouteDetails({
     bool isLoading = true,
     String? search,
     bool loadMore = false,
   }) async {
-    if (_routesIsLoadingMore && loadMore) return;
+    if (_routesIsLoadingMore && loadMore) return [];
 
     if (!loadMore) {
       _routesIsLastPage = false;
     } else if (_routesIsLastPage) {
-      return;
+      return [];
     }
 
     if (loadMore) {
@@ -348,11 +347,16 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
         if (loadMore) {
           final existing =
               state.lpLoadRouteDetails?.data?.data?.routeList ?? <RouteList>[];
-          final combined = [...existing, ...newList];
 
-          // Create a new Data object with combined list
+          final combined = [
+            ...existing,
+            ...newList.where(
+              (newItem) => !existing.any(
+                (oldItem) => oldItem.masterLaneId == newItem.masterLaneId,
+              ),
+            ),
+          ];
           final newData = result.value.data?.copyWith(routeList: combined);
-
           _setRouteDetailsState(
             UIState.success(result.value.copyWith(data: newData)),
           );
@@ -360,16 +364,18 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
           _setRouteDetailsState(UIState.success(result.value));
         }
 
-        // Check if last page
-        final totalPages = ((result.value.data?.total ?? 0) / (10)).ceil();
+        final totalPages = ((result.value.data?.total ?? 0) / 10).ceil();
         _routesIsLastPage = _routesCurrentPage >= totalPages;
+        return newList;
       } else if (result is Error<LpLoadRouteResponse>) {
         _setRouteDetailsState(UIState.error(result.type));
       }
     } finally {
       _routesIsLoadingMore = false;
     }
+    return [];
   }
+
 
   // Updates the UI state related to load status.
   void _setLoadStatusState(UIState<List<LoadStatusResponse>>? uiState) {

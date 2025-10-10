@@ -30,11 +30,13 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 class AvailableLoadsFilterScreen extends StatefulWidget {
   final Function(Map<String, dynamic> data) onFilterApplied;
   final LoadData? initialRouteData; // Route data from chat
+  final VoidCallback? onFilterCleared;
 
   const AvailableLoadsFilterScreen({
     super.key,
     required this.onFilterApplied,
     this.initialRouteData,
+    this.onFilterCleared,
   });
 
   @override
@@ -371,6 +373,7 @@ class _AvailableLoadsFilterScreenState
               AppButton(
                 onPressed: () {
                   filterCubit.setIsFilterApplied(value: false);
+                  if (widget.onFilterCleared != null) widget.onFilterCleared!();
                   context.pop();
                 },
                 title: context.appText.cancel,

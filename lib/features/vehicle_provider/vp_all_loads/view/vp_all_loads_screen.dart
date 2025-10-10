@@ -723,11 +723,17 @@ void _updateTabs(List<LoadStatusResponse> newTabs) {
             noButtonText: context.appText.cancel,
             yesButtonText: context.appText.apply,
             child: AvailableLoadsFilterScreen(
-              initialRouteData: widget.filterData, // Pass route data from chat
+              initialRouteData: widget.filterData, 
               onFilterApplied: (data) {
                 commodityID = data['commodityId'];
                 leneId = data['lensType'];
                 truckTypeId = data['truckTypeId'];
+                _onPullToRefresh();
+              },
+              onFilterCleared: () {
+                commodityID = null;
+                leneId = null;
+                truckTypeId = null;
                 _onPullToRefresh();
               },
             ),
